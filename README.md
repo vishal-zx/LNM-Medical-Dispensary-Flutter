@@ -1,4 +1,4 @@
-# lnm_medical_dispensary
+# LNM Medical Dispensary
 
 A new Flutter project.
 
