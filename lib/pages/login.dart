@@ -23,10 +23,6 @@ class _LoginState extends State<Login> {
   final formKeyReset = GlobalKey<FormState>(); 
   bool _showPass = true;
 
-  RegExp regExp = RegExp(r"^\d{2}[a-z]{3}\d{3}$",
-    caseSensitive: false,
-  );
-
   SnackBar makeBar(String text){
     final snackBar = SnackBar(
       duration: Duration(milliseconds: (text=="Loading...")?700:3000),
@@ -235,7 +231,7 @@ class _LoginState extends State<Login> {
                                                   Icons.done, color: Colors.white,
                                                 ) :
                                                 Text(
-                                                  "Login",
+                                                  "Sign In",
                                                   style: TextStyle(
                                                     color: Colors.white, 
                                                     fontWeight: FontWeight.bold,
@@ -361,7 +357,7 @@ class _LoginState extends State<Login> {
                                                 height: mqw*0.125,
                                                 alignment: Alignment.center,
                                                 child: Text(
-                                                  "Register",
+                                                  "Sign Up Now",
                                                   style: TextStyle(
                                                     color: Colors.white, 
                                                     fontWeight: FontWeight.bold,
