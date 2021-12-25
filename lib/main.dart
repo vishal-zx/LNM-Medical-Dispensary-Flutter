@@ -65,7 +65,20 @@ class _MyAppState extends State<MyApp> {
       initialRoute: MyRoutes.loginRoute,
       themeMode: ThemeMode.light,
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        primarySwatch:const MaterialColor(
+          0xFF000000, {
+            50:  Color(0x00000000),
+            100: Color(0x00000000),
+            200: Color(0x00000000),
+            300: Color(0x00000000),
+            400: Color(0x00000000),
+            500: Color(0x00000000),
+            600: Color(0x00000000),
+            700: Color(0x00000000),
+            800: Color(0x00000000),
+            900: Color(0x00000000),
+          }
+        ),
         fontFamily: 'Avenir',
       ),
       title: 'LNM Medical Dispensary',
