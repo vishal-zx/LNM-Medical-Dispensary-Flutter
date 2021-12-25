@@ -4,16 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lnm_medical_dispensary/pages/register.dart';
 
-class Login extends StatefulWidget {
-  const Login({ Key? key }) : super(key: key);
+class Register extends StatefulWidget {
+  const Register({ Key? key }) : super(key: key);
 
   @override
-  _LoginState createState() => _LoginState();
+  _RegisterState createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   String email = "";
   String emailReset = "";
   String password = "";
@@ -52,24 +51,6 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Route _createRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const Register(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var mqh = MediaQuery.of(context).size.height;
@@ -77,7 +58,7 @@ class _LoginState extends State<Login> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.green[400],
+        backgroundColor: Colors.blue[400],
         body: SafeArea(
           child: SingleChildScrollView( // REMEMBER TO REMOVE THIS WIDGET
             child: Container(
@@ -93,7 +74,7 @@ class _LoginState extends State<Login> {
                     alignment: Alignment.bottomLeft,
                     padding: EdgeInsets.only(left:mqw*0.09),
                     child: Text(
-                      "Sign In",
+                      "Sign Up",
                       style:TextStyle(
                         fontSize: mqh*0.06,
                         fontWeight: FontWeight.bold,
@@ -111,7 +92,7 @@ class _LoginState extends State<Login> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.green[200],
+                            color: Colors.blue[200],
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(mqh*0.05),
                             )
@@ -124,7 +105,7 @@ class _LoginState extends State<Login> {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.lightGreen[100],
+                                  color: Colors.lightBlue[100],
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(mqh*0.05),
                                   )
@@ -231,7 +212,7 @@ class _LoginState extends State<Login> {
                                         Container(
                                           alignment: Alignment.center,
                                           child: Material(
-                                            color: (_check1 == true)?Colors.green[300]:Colors.green,
+                                            color: (_check1 == true)?Colors.blue[300]:Colors.blue,
                                             borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
                                             child: InkWell(
                                               onTap: () {
@@ -250,7 +231,7 @@ class _LoginState extends State<Login> {
                                                   Icons.done, color: Colors.white,
                                                 ) :
                                                 Text(
-                                                  "Sign In",
+                                                  "Sign Up",
                                                   style: TextStyle(
                                                     color: Colors.white, 
                                                     fontWeight: FontWeight.bold,
@@ -280,7 +261,7 @@ class _LoginState extends State<Login> {
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(mqh*0.025),
                                                     ), 
-                                                    backgroundColor: Colors.green[100],
+                                                    backgroundColor: Colors.blue[100],
                                                     content: SingleChildScrollView(
                                                       child: ListBody(
                                                         children: <Widget>[
@@ -365,11 +346,11 @@ class _LoginState extends State<Login> {
                                         Container(
                                           alignment: Alignment.centerRight,
                                           child: Material(
-                                            color: Colors.green,
+                                            color: Colors.blue,
                                             borderRadius: BorderRadius.circular(mqw*0.03),
                                             child: InkWell(
                                               onTap: () {
-                                                Navigator.of(context).push(_createRoute());
+                                                
                                               },
                                               child: Container(
                                                 width: mqw*0.39,
