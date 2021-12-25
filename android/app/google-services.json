@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "479659206443",
+    "project_id": "lnmmeddis",
+    "storage_bucket": "lnmmeddis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479659206443:android:733d54badebdeb2464076e",
+        "android_client_info": {
+          "package_name": "com.example.lnm_medical_dispensary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479659206443-5bh9ipj39uersgpsd8ufa2s695rovacs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_WT7HuemtJ7WnrgHN2_Rs16exSgPJdcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479659206443-5bh9ipj39uersgpsd8ufa2s695rovacs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
