@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lnm_medical_dispensary/pages/login.dart';
+import 'package:lnm_medical_dispensary/pages/patientHome.dart';
 import 'package:lnm_medical_dispensary/pages/register.dart';
 import 'package:lnm_medical_dispensary/utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,6 +87,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         MyRoutes.loginRoute: (context) => const Login(),
         MyRoutes.registerRoute: (context) => const Register(),
+        MyRoutes.patHomeRoute: (context) => const PatientHome(),
       },
     );
   }
