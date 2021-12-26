@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.lnm_medical_dispensary">
+    package="com.lnm.LNM_Medical_Dispensary">
    <application
         android:label="LNM Medical Dispensary"
         android:icon="@mipmap/ic_launcher">
