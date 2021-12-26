@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lnm_medical_dispensary/pages/patient/home.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Register extends StatefulWidget {
   const Register({ Key? key }) : super(key: key);
@@ -377,13 +379,14 @@ class _RegisterState extends State<Register> {
                                                   setState((){
                                                     _check1 = !_check1;
                                                     _check = !_check;
-                                                    print(email);
-                                                    print(username);
-                                                    print(fName + " " + lName);
-                                                    print(password);
-                                                    print(mob);
-                                                    print(age);
-                                                    print(isMale?"Male":"Female");
+                                                    Navigator.push(
+                                                      context, 
+                                                      PageTransition(
+                                                        type: PageTransitionType.rightToLeft, 
+                                                        duration: const Duration(milliseconds: 400),
+                                                        child: const PatientHome()
+                                                      )
+                                                    );
                                                   });
                                                 },
                                                 child: AnimatedContainer(

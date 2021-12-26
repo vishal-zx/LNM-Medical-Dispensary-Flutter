@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "479659206443",
+    "firebase_url": "https://lnmmeddis-default-rtdb.firebaseio.com",
     "project_id": "lnmmeddis",
     "storage_bucket": "lnmmeddis.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:479659206443:android:733d54badebdeb2464076e",
+        "mobilesdk_app_id": "1:479659206443:android:33abeaa016d0f37364076e",
         "android_client_info": {
-          "package_name": "com.example.lnm_medical_dispensary"
+          "package_name": "com.lnm.LNM_Medical_Dispensary"
         }
       },
       "oauth_client": [
