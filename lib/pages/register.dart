@@ -140,7 +140,7 @@ class _RegisterState extends State<Register> {
                                             )
                                           ),
                                           Text(
-                                            "(can include only lowercase letters, '.' and '-')",
+                                            "(only a-z, 0-9, '.', '-' allowed)",
                                             style:TextStyle(
                                               fontStyle: FontStyle.italic,
                                               fontSize: mqh*0.015,
