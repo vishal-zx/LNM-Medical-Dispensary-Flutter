@@ -3,4 +3,5 @@ class MyRoutes {
   static String registerRoute = "/register";
   static String homeRoute = "/home";
   static String patHomeRoute = "/patHome";
+  static String bookAppRoute = "/bookApp";
 }

@@ -2,8 +2,10 @@ import 'dart:core';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/login.dart';
+import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:page_transition/page_transition.dart';
 
 class PatientHome extends StatefulWidget {
@@ -15,7 +17,7 @@ class PatientHome extends StatefulWidget {
 
 class _PatientHomeState extends State<PatientHome> {
   List<Map<String, Widget>> opts = [
-      {'Book Appointment': const Login()},
+      {'Book Appointment': const BookAppointment()},
       {'View Appointments History': const Login()},
       {'Book A Test': const Login()},
       {'View Medical History': const Login()},
@@ -25,6 +27,11 @@ class _PatientHomeState extends State<PatientHome> {
       {'Submit Feedback': const Login()},
       {'Logout': const Login()},
   ];
+  
+  Future<bool> _exitApp() async {
+    SystemNavigator.pop();
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +79,7 @@ class _PatientHomeState extends State<PatientHome> {
                     height:mqh*0.02
                   ),
                   Container(
-                    alignment: Alignment.bottomCenter,
+                    alignment: Alignment.bottomLeft,
                     child: Stack(
                       clipBehavior: Clip.none, 
                       children: [
@@ -80,17 +87,16 @@ class _PatientHomeState extends State<PatientHome> {
                           decoration: BoxDecoration(
                             color: Colors.amber[100],
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(mqh*0.05),
                               topRight: Radius.circular(mqh*0.05),
                             )
                           ),
-                          alignment: Alignment.bottomCenter,
+                          alignment: Alignment.bottomLeft,
                           width: mqw*0.9,
                           height: mqh*0.8,
                           child: Container(
-                            padding: EdgeInsets.only(left:mqw*0.04, right:mqw*0.04),
-                            width: mqw*0.81,
-                            height: mqh*0.75,
+                            padding: EdgeInsets.only(left:mqw*0.07, right:mqw*0.02),
+                            width: mqw*0.84,
+                            height: mqh*0.755,
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(), 
                               itemCount: opts.length,
