@@ -12,7 +12,31 @@ class BookAppointment extends StatefulWidget {
 }
 
 class _BookAppointmentState extends State<BookAppointment> {
-  final formKey = GlobalKey<FormState>(); 
+  final formKey = GlobalKey<FormState>();
+
+  Iterable<TimeOfDay> getTimes(TimeOfDay startTime, TimeOfDay endTime, Duration step) sync* {
+    var hour = startTime.hour;
+    var minute = startTime.minute;
+
+    do {
+      yield TimeOfDay(hour: hour, minute: minute);
+      minute += step.inMinutes;
+      while (minute >= 60) {
+        minute -= 60;
+        hour++;
+      }
+    } while (hour < endTime.hour ||
+            (hour == endTime.hour && minute <= endTime.minute));
+  }
+
+  final startTime = const TimeOfDay(hour: 9, minute: 0);
+  final endTime = const TimeOfDay(hour: 17, minute: 0);
+  final step = const Duration(minutes: 30);
+
+  // ignore: prefer_typing_uninitialized_variables
+  var times;
+
+  bool _check1 = false; 
 
   List<DropdownMenuItem<String>> get dropdownItems{
     List<DropdownMenuItem<String>> menuItems = [
@@ -25,8 +49,17 @@ class _BookAppointmentState extends State<BookAppointment> {
   }
   
   String selectedValue = "USA";
+  num selectedTimeSlot = -1;
   String reason = "";
   bool isAppointUrgent = false;
+
+  @override
+  void initState(){
+    super.initState();
+    Future.delayed(const Duration(seconds:2), () {
+        times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +162,56 @@ class _BookAppointmentState extends State<BookAppointment> {
                                     SizedBox(
                                       height:mqh*0.01
                                     ),
+                                    Container(
+                                      height: mqh*0.15,
+                                      alignment: Alignment.center,
+                                      child: GridView.builder(
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4,
+                                          childAspectRatio: 1.5,
+                                        ),
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: (times==null)?1:times.length,
+                                        itemBuilder: (context, index) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState((){
+                                                selectedTimeSlot = index;
+                                              });
+                                            },
+                                            child: Container(
+                                              margin: EdgeInsets.all(mqh*0.007),
+                                              decoration: BoxDecoration(
+                                                color: (selectedTimeSlot==index)?Colors.green:Colors.green[50],
+                                                borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
+                                              ),
+                                              child: Center(child: (times==null)?
+                                              Icon(
+                                                Icons.refresh,
+                                                size:mqh*0.025
+                                              ):
+                                              Text(
+                                                times[index],
+                                                style:TextStyle(
+                                                  fontSize: mqh*0.015,
+                                                  color: Colors.black87,
+                                                )
+                                              )),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.01
+                                    ),
+                                    Text(
+                                      "Selected Time: " + ((times==null)?'':times[selectedTimeSlot]),
+                                      style:TextStyle(
+                                        fontSize: mqh*0.02,
+                                        color: Colors.black87,
+                                      )
+                                    ),
                                     SizedBox(
                                       height:mqh*0.06
                                     ),
@@ -192,10 +275,44 @@ class _BookAppointmentState extends State<BookAppointment> {
                                         ),
                                       ],
                                     ),
-                                    TextButton(onPressed: (){
-
-                                    }, 
-                                    child: const Text("ok"))
+                                    SizedBox(
+                                      height:mqh*0.05
+                                    ),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Material(
+                                        color: (_check1 == true)?Colors.brown[300]:Colors.brown,
+                                        borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState((){
+                                              _check1 = !_check1;
+                                            });
+                                          },
+                                          child: AnimatedContainer(
+                                            duration: const Duration(seconds: 1),
+                                            width: _check1?mqw*0.125: mqw*0.3,
+                                            height: mqw*0.125,
+                                            alignment: Alignment.center,
+                                            child: _check1?
+                                            const Icon(
+                                              Icons.done, color: Colors.white,
+                                            ) :
+                                            Text(
+                                              "Book",
+                                              style: TextStyle(
+                                                color: Colors.white, 
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: mqh*0.025,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.025
+                                    ),
                                   ]
                                 )
                               ),
