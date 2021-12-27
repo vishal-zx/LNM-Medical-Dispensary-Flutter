@@ -70,7 +70,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.red[300],
+        backgroundColor: Colors.amber[300],
         body: SafeArea(
           child: SingleChildScrollView( // REMEMBER TO REMOVE THIS WIDGET
             child: Container(
@@ -104,7 +104,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.red[100],
+                            color: Colors.amber[100],
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(mqh*0.05),
                             )
@@ -136,13 +136,13 @@ class _BookAppointmentState extends State<BookAppointment> {
                                     DropdownButtonFormField(
                                       decoration: InputDecoration(
                                         enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: Colors.redAccent.shade100, width: 2),
+                                          borderSide: BorderSide(color: Colors.amberAccent.shade100, width: 2),
                                           borderRadius: BorderRadius.circular(mqh*0.02),
                                         ),
                                         filled: true,
-                                        fillColor: Colors.redAccent[100],
+                                        fillColor: Colors.amberAccent[100],
                                       ),
-                                      dropdownColor: Colors.redAccent.shade100,
+                                      dropdownColor: Colors.amberAccent[100],
                                       value: selectedValue,
                                       onChanged: (String? newValue) {
                                         setState(() {
@@ -152,7 +152,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       items: dropdownItems
                                     ),
                                     SizedBox(
-                                      height:mqh*0.06
+                                      height:mqh*0.04
                                     ),
                                     Text(
                                       "Preferred Date & Time",
@@ -165,7 +165,6 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       decoration: InputDecoration(
                                         hintText: DateFormat("dd MMMM yyyy").format(selectedDate),
                                         suffix: InkWell(
-
                                           onTap: () {
                                             showDatePicker(
                                               context: context,
@@ -173,8 +172,8 @@ class _BookAppointmentState extends State<BookAppointment> {
                                                 return Theme(
                                                   data: Theme.of(context).copyWith(
                                                     colorScheme: ColorScheme.light(
-                                                      primary: Colors.red.shade300,
-                                                      onPrimary: Colors.white,
+                                                      primary: Colors.amber.shade300,
+                                                      onPrimary: Colors.black,
                                                       onSurface: Colors.black,
                                                     ),
                                                   ),
@@ -230,7 +229,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                             child: Container(
                                               margin: EdgeInsets.all(mqh*0.007),
                                               decoration: BoxDecoration(
-                                                color: (selectedTimeSlot==index)?Colors.green:Colors.green[50],
+                                                color: (selectedTimeSlot==index)?Colors.blueGrey[600]:Colors.blueGrey[100],
                                                 borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
                                               ),
                                               child: Center(child: (times==null)?
@@ -242,7 +241,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                                 times[index],
                                                 style:TextStyle(
                                                   fontSize: mqh*0.015,
-                                                  color: Colors.black87,
+                                                  color: (selectedTimeSlot==index)?Colors.white:Colors.black,
                                                 )
                                               )),
                                             ),
@@ -251,7 +250,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       )
                                     ),
                                     SizedBox(
-                                      height:mqh*0.06
+                                      height:mqh*0.04
                                     ),
                                     Text(
                                       "Reason",
@@ -267,13 +266,13 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter reason for appointment",
                                       ),
-                                      maxLines: null,
+                                      maxLength: 35,
                                       onChanged:(value){
                                         reason = value;
                                       },
                                     ),
                                     SizedBox(
-                                      height:mqh*0.06
+                                      height:mqh*0.04
                                     ),
                                     Text(
                                       "Type of Appointment",
@@ -319,7 +318,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                     Container(
                                       alignment: Alignment.center,
                                       child: Material(
-                                        color: (_check1 == true)?Colors.brown[300]:Colors.brown,
+                                        color: (_check1 == true)?Colors.orange[300]:Colors.orange,
                                         borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
                                           onTap: () {
