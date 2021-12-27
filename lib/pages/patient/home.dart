@@ -20,7 +20,6 @@ class _PatientHomeState extends State<PatientHome> {
   List<Map<String, Widget>> opts = [
       {'Book Appointment': const BookAppointment()},
       {'View Appointments History': const CheckAppointHistory()},
-      {'Book A Test': const Login()},
       {'View Medical History': const Login()},
       {'Request Medical Certificate': const Login()},
       {'View Medical\nCertificates History': const Login()},
