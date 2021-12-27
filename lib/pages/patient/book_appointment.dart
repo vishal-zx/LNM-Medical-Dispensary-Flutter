@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -49,9 +50,10 @@ class _BookAppointmentState extends State<BookAppointment> {
   }
   
   String selectedValue = "USA";
-  num selectedTimeSlot = -1;
+  num selectedTimeSlot = 0;
   String reason = "";
   bool isAppointUrgent = false;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState(){
@@ -153,11 +155,57 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       height:mqh*0.06
                                     ),
                                     Text(
-                                      "Preferred Time",
+                                      "Preferred Date & Time",
                                       style:TextStyle(
                                         fontSize: mqh*0.035,
                                         color: Colors.black87,
                                       )
+                                    ),
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        hintText: DateFormat("dd MMMM yyyy").format(selectedDate),
+                                        suffix: InkWell(
+
+                                          onTap: () {
+                                            showDatePicker(
+                                              context: context,
+                                              builder: (context, child) {
+                                                return Theme(
+                                                  data: Theme.of(context).copyWith(
+                                                    colorScheme: ColorScheme.light(
+                                                      primary: Colors.red.shade300,
+                                                      onPrimary: Colors.white,
+                                                      onSurface: Colors.black,
+                                                    ),
+                                                  ),
+                                                  child: child!,
+                                                );
+                                              },
+                                              helpText: 'Select Date for Appointment',
+                                              initialDate: selectedDate,
+                                              firstDate: DateTime.now(),
+                                              lastDate: DateTime.now().add(const Duration(days: 14)),
+                                            ).then((pickedDate) {
+                                              if (pickedDate == null) {
+                                                return;
+                                              }
+                                              setState(() {
+                                                selectedDate = pickedDate;
+                                              });
+                                            });
+                                          },
+                                          child: Icon(
+                                            Icons.date_range,
+                                            size: mqh*0.033,
+                                          ),
+                                        ),
+                                      ),
+                                      readOnly: true,
+                                      style:TextStyle(
+                                        fontSize: mqh*0.023,
+                                        color: Colors.black,
+                                      ),
+                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedDate) + " " + ((times==null)?'':times[selectedTimeSlot]),
                                     ),
                                     SizedBox(
                                       height:mqh*0.01
@@ -200,16 +248,6 @@ class _BookAppointmentState extends State<BookAppointment> {
                                             ),
                                           );
                                         },
-                                      )
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.01
-                                    ),
-                                    Text(
-                                      "Selected Time: " + ((times==null)?'':times[selectedTimeSlot]),
-                                      style:TextStyle(
-                                        fontSize: mqh*0.02,
-                                        color: Colors.black87,
                                       )
                                     ),
                                     SizedBox(
