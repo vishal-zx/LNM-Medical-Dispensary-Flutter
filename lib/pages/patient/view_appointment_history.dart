@@ -76,7 +76,7 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.only(left:mqw*0.11),
                     child: Text(
-                      "View Appointment History",
+                      "View Appointments History",
                       style:TextStyle(
                         fontSize: mqh*0.044,
                         fontWeight: FontWeight.bold,
