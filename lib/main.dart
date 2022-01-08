@@ -5,6 +5,7 @@ import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/home.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.dart';
+import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:lnm_medical_dispensary/pages/register.dart';
 import 'package:lnm_medical_dispensary/utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,6 +93,7 @@ class _MyAppState extends State<MyApp> {
         MyRoutes.patHomeRoute: (context) => const PatientHome(),
         MyRoutes.bookAppRoute: (context) => const BookAppointment(),
         MyRoutes.checkAppHistory: (context) => const CheckAppointHistory(),
+        MyRoutes.viewMedHis: (context) => const ViewMedHis(),
       },
     );
   }
