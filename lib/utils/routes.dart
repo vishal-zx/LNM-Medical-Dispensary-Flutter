@@ -6,4 +6,5 @@ class MyRoutes {
   static String bookAppRoute = "/bookApp";
   static String checkAppHistory = "/checkAppHis";
   static String viewMedHis = "/viewMedHis";
+  static String reqMedCert = "/reqMedCert";
 }

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
+import 'package:lnm_medical_dispensary/pages/patient/request_med_cert.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:page_transition/page_transition.dart';
@@ -22,7 +23,7 @@ class _PatientHomeState extends State<PatientHome> {
       {'Book Appointment': const BookAppointment()},
       {'View Appointments History': const CheckAppointHistory()},
       {'View Medical History': const ViewMedHis()},
-      {'Request Medical Certificate': const Login()},
+      {'Request Medical Certificate': const RequestMedCert()},
       {'View Medical\nCertificates History': const Login()},
       {'Update Profile': const Login()},
       {'Submit Feedback': const Login()},
