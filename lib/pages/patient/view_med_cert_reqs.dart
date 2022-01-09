@@ -37,13 +37,13 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
   final formKey = GlobalKey<FormState>();
 
   List<MedCertRequests> medCertsReqs = [
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever fever fever fever fever fever', ''),
+      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever fever fever fever fever fever in order to open APK files, your application needs', ''),
       MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
       MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
       MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
       MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
       MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
+      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever in order to open APK files, your application needs', ''),
       MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
       MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
       MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
@@ -179,7 +179,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                                   Text(
                                                                     medCertsReqs[index].reason,
                                                                     softWrap: true,
-                                                                    maxLines: 1,
+                                                                    maxLines: 2,
                                                                     overflow: TextOverflow.ellipsis,
                                                                     style:TextStyle(
                                                                       fontSize: mqw*0.035,
