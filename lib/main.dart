@@ -6,6 +6,7 @@ import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/home.dart';
 import 'package:lnm_medical_dispensary/pages/patient/request_med_cert.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.dart';
+import 'package:lnm_medical_dispensary/pages/patient/view_med_cert_reqs.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:lnm_medical_dispensary/pages/register.dart';
 import 'package:lnm_medical_dispensary/utils/routes.dart';
@@ -96,6 +97,7 @@ class _MyAppState extends State<MyApp> {
         MyRoutes.checkAppHistory: (context) => const CheckAppointHistory(),
         MyRoutes.viewMedHis: (context) => const ViewMedHis(),
         MyRoutes.reqMedCert: (context) => const RequestMedCert(),
+        MyRoutes.viewMedCertReqs: (context) => const ViewMedCertReqs(),
       },
     );
   }

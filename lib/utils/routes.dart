@@ -7,4 +7,5 @@ class MyRoutes {
   static String checkAppHistory = "/checkAppHis";
   static String viewMedHis = "/viewMedHis";
   static String reqMedCert = "/reqMedCert";
+  static String viewMedCertReqs = "/viewMedCertReqs";
 }
