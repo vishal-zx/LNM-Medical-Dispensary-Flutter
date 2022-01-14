@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
 import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/home.dart';
@@ -15,7 +16,7 @@ import 'package:lnm_medical_dispensary/pages/register.dart';
 import 'package:lnm_medical_dispensary/utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-String route = MyRoutes.loginRoute;
+String route = MyRoutes.login;
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,7 +73,7 @@ class _MyAppState extends State<MyApp> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: MyRoutes.loginRoute,
+      initialRoute: MyRoutes.login,
       themeMode: ThemeMode.light,
       theme: ThemeData(
         primarySwatch:const MaterialColor(
@@ -94,16 +95,18 @@ class _MyAppState extends State<MyApp> {
       title: 'LNM Medical Dispensary',
 
       routes: {
-        MyRoutes.loginRoute: (context) => const Login(),
-        MyRoutes.registerRoute: (context) => const Register(),
-        MyRoutes.patHomeRoute: (context) => const PatientHome(),
-        MyRoutes.bookAppRoute: (context) => const BookAppointment(),
+        MyRoutes.login: (context) => const Login(),
+        MyRoutes.register: (context) => const Register(),
+        MyRoutes.patHome: (context) => const PatientHome(),
+        MyRoutes.bookApp: (context) => const BookAppointment(),
         MyRoutes.checkAppHistory: (context) => const CheckAppointHistory(),
         MyRoutes.viewMedHis: (context) => const ViewMedHis(),
         MyRoutes.reqMedCert: (context) => const RequestMedCert(),
         MyRoutes.viewMedCertReqs: (context) => const ViewMedCertReqs(),
         MyRoutes.patientProfile: (context) => const PatientProfile(),
         MyRoutes.feedback: (context) => const SubmitFeedback(),
+        MyRoutes.docHome: (context) => const DoctorHome(),
+        MyRoutes.newTreatment: (context) => const NewTreatment(),
       },
     );
   }

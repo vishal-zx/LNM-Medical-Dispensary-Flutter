@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:search_choices/search_choices.dart';
 
 class RequestMedCert extends StatefulWidget {
   const RequestMedCert({ Key? key }) : super(key: key);
@@ -102,26 +103,24 @@ class _RequestMedCertState extends State<RequestMedCert> {
                                         color: Colors.black87,
                                       )
                                     ),
-                                    SizedBox(
-                                      height:mqh*0.015
-                                    ),
-                                    DropdownButtonFormField(
-                                      decoration: InputDecoration(
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: Colors.amberAccent.shade100, width: 2),
-                                          borderRadius: BorderRadius.circular(mqh*0.02),
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.amberAccent[100],
-                                      ),
-                                      dropdownColor: Colors.amberAccent[100],
+                                    SearchChoices.single(
+                                      items: dropdownItems,
                                       value: selectedValue,
-                                      onChanged: (String? newValue) {
+                                      hint: "Select one",
+                                      searchHint: null,
+                                      onChanged: (value) {
                                         setState(() {
-                                          selectedValue = newValue!;
+                                          selectedValue = value;
                                         });
                                       },
-                                      items: dropdownItems
+                                      style:TextStyle(
+                                        fontSize: mqh*0.025,
+                                        color: Colors.black,
+                                        fontFamily: 'Avenir'
+                                      ),
+                                      menuBackgroundColor: Colors.amberAccent[100],
+                                      dialogBox: true,
+                                      isExpanded: true,
                                     ),
                                     SizedBox(
                                       height:mqh*0.04
