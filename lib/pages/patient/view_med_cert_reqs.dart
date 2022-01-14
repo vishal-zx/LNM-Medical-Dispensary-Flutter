@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:page_transition/page_transition.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
-import '../login.dart';
 
 class ViewMedCertReqs extends StatefulWidget {
   const ViewMedCertReqs({ Key? key }) : super(key: key);
@@ -61,7 +60,20 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
 
   @override
   void initState(){
+    // FlutterDownloader.initialize();
     super.initState();
+  }
+
+  void _requestDownload(String link) async {
+    FlutterDownloader.initialize().then((value)async{
+      final taskId = await FlutterDownloader.enqueue(
+        url: link,
+        savedDir: '/storage/emulated/0/Download',
+        showNotification: true, // show download progress in status bar (for Android)
+        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+     );
+    });
+    
   }
 
   @override
@@ -280,7 +292,8 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                               textAlign: TextAlign.center,
                                                             ),
                                                             onPressed: () {
-
+                                                              _requestDownload('https://firebasestorage.googleapis.com/v0/b/lnmmeddis.appspot.com/o/Vishal%20Gupta.pdf?alt=media&token=8ad40c4d-567b-4f5b-be2c-12d73f0a31c1');
+                                                              Navigator.of(context).pop();
                                                             },
                                                           ),
                                                           if(medCertsReqs[index].status == CertStatus.pending)
