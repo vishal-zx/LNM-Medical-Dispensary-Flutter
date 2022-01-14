@@ -8,6 +8,7 @@ import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/profile.dart';
 import 'package:lnm_medical_dispensary/pages/patient/request_med_cert.dart';
+import 'package:lnm_medical_dispensary/pages/patient/submit_feedback.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_med_cert_reqs.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
@@ -28,7 +29,7 @@ class _PatientHomeState extends State<PatientHome> {
       {'Request Medical Certificate': const RequestMedCert()},
       {'View Medical\nCertificates History': const ViewMedCertReqs()},
       {'Update Profile': const PatientProfile()},
-      {'Submit Feedback': const Login()},
+      {'Submit Feedback': const SubmitFeedback()},
       {'Logout': const Login()},
   ];
   

@@ -9,4 +9,5 @@ class MyRoutes {
   static String reqMedCert = "/reqMedCert";
   static String viewMedCertReqs = "/viewMedCertReqs";
   static String patientProfile = "/patientProfile";
+  static String feedback = "/feedback";
 }
