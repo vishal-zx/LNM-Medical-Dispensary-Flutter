@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/profile.dart';
 import 'package:lnm_medical_dispensary/pages/patient/request_med_cert.dart';
@@ -21,17 +20,56 @@ class PatientHome extends StatefulWidget {
   _PatientHomeState createState() => _PatientHomeState();
 }
 
+Widget logout(BuildContext context, double mqh){
+  return BackdropFilter(
+    filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+    child: AlertDialog(
+      backgroundColor: Colors.orange[300],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(mqh*0.025),
+      ),
+      title: Text(
+        "Are you sure you want to logout?",
+        style: TextStyle(
+          fontSize: mqh*0.03,
+          color:Colors.black,
+        ),
+      ),
+      contentPadding: EdgeInsets.zero,
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton(
+              onPressed: (){
+                print("1");
+              },
+              child: Text(
+                "Logout",
+                style: TextStyle(
+                  fontSize:mqh*0.028
+                ),
+              )
+            ),
+            TextButton(
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  fontSize:mqh*0.028
+                ),
+              )
+            )
+          ],
+        )
+      ]
+    ),
+  );
+}
+
 class _PatientHomeState extends State<PatientHome> {
-  List<Map<String, Widget>> opts = [
-      {'Book Appointment': const BookAppointment()},
-      {'View Appointments History': const CheckAppointHistory()},
-      {'View Medical History': const ViewMedHis()},
-      {'Request Medical Certificate': const RequestMedCert()},
-      {'View Medical\nCertificates History': const ViewMedCertReqs()},
-      {'Update Profile': const PatientProfile()},
-      {'Submit Feedback': const SubmitFeedback()},
-      {'Logout': const Login()},
-  ];
   
   Future<bool> _exitApp() async {
     SystemNavigator.pop();
@@ -42,6 +80,16 @@ class _PatientHomeState extends State<PatientHome> {
   Widget build(BuildContext context) {
     var mqh = MediaQuery.of(context).size.height;
     var mqw = MediaQuery.of(context).size.width;
+    List<Map<String, Widget>> opts = [
+      {'Book Appointment': const BookAppointment()},
+      {'View Appointments History': const CheckAppointHistory()},
+      {'View Medical History': const ViewMedHis()},
+      {'Request Medical Certificate': const RequestMedCert()},
+      {'View Medical\nCertificates History': const ViewMedCertReqs()},
+      {'Update Profile': const PatientProfile()},
+      {'Submit Feedback': const SubmitFeedback()},
+      {'Logout': logout(context, mqh)},
+    ];
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -108,15 +156,23 @@ class _PatientHomeState extends State<PatientHome> {
                               itemBuilder: (context, index){
                                 return GestureDetector(
                                   onTap:(){
-                                    Navigator.push(
-                                      context, 
-                                      PageTransition(
-                                        type: PageTransitionType.leftToRightJoined, 
-                                        duration: const Duration(milliseconds: 400),
-                                        child: opts[index].values.first,
-                                        childCurrent: const PatientHome()
-                                      )
-                                    );
+                                    if(index!=opts.length-1){
+                                      Navigator.push(
+                                        context, 
+                                        PageTransition(
+                                          type: PageTransitionType.leftToRightJoined, 
+                                          duration: const Duration(milliseconds: 400),
+                                          child: opts[index].values.first,
+                                          childCurrent: const PatientHome()
+                                        )
+                                      );
+                                    }
+                                    else{
+                                      showDialog(
+                                        context: context, 
+                                        builder: (BuildContext context) => logout(context, mqh)
+                                      );
+                                    }
                                   },
                                   child: SizedBox(
                                     height:mqh*0.18,
