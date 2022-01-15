@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
-import 'package:lnm_medical_dispensary/pages/patient/home.dart';
 import 'package:page_transition/page_transition.dart';
 
 class Register extends StatefulWidget {
@@ -129,6 +128,7 @@ class _RegisterState extends State<Register> {
                                   child:Form(
                                     key: formKey,
                                     child: SingleChildScrollView(
+                                      physics: const BouncingScrollPhysics(), 
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,

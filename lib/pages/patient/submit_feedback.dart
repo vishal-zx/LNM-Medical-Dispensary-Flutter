@@ -193,7 +193,6 @@ class _SubmitFeedbackState extends State<SubmitFeedback> {
                                                   break;
                                                 }
                                               }
-                                              print(selectedValue+i.toString()+feedback);
                                             });
                                           },
                                           child: AnimatedContainer(

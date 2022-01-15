@@ -42,7 +42,6 @@ Widget logout(BuildContext context, double mqh){
           children: [
             TextButton(
               onPressed: (){
-                print("1");
               },
               child: Text(
                 "Logout",

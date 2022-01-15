@@ -66,7 +66,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
 
   void _requestDownload(String link) async {
     FlutterDownloader.initialize().then((value)async{
-      final taskId = await FlutterDownloader.enqueue(
+      FlutterDownloader.enqueue(
         url: link,
         savedDir: '/storage/emulated/0/Download',
         showNotification: true, // show download progress in status bar (for Android)

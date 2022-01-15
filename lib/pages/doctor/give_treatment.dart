@@ -93,6 +93,7 @@ class _NewTreatmentState extends State<NewTreatment> {
                             child: Form(
                               key: formKey,
                               child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(), 
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
