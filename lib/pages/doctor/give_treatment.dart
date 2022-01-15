@@ -128,6 +128,13 @@ class _NewTreatmentState extends State<NewTreatment> {
                                         color: Colors.black87,
                                       )
                                     ),
+                                    Text(
+                                      "(provided by patient)",
+                                      style:TextStyle(
+                                        fontSize: mqh*0.017,
+                                        color: Colors.black87,
+                                      )
+                                    ),
                                     TextFormField(
                                       controller: TextEditingController()..text = reason,
                                       readOnly:true,
