@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_appointments.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/view_pat_history.dart';
 import 'package:lnm_medical_dispensary/pages/login.dart';
 import 'package:lnm_medical_dispensary/pages/patient/book_appointment.dart';
 import 'package:lnm_medical_dispensary/pages/patient/home.dart';
@@ -109,6 +110,7 @@ class _MyAppState extends State<MyApp> {
         MyRoutes.docHome: (context) => const DoctorHome(),
         MyRoutes.newTreatment: (context) => const NewTreatment(),
         MyRoutes.viewAppointReq: (context) => const ViewAppointsRequests(),
+        MyRoutes.viewPatHis: (context) => const ViewPatHis(),
       },
     );
   }

@@ -6,10 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_appointments.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/view_pat_history.dart';
 import 'package:lnm_medical_dispensary/pages/patient/profile.dart';
 import 'package:lnm_medical_dispensary/pages/patient/submit_feedback.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_med_cert_reqs.dart';
-import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:page_transition/page_transition.dart';
 
 class DoctorHome extends StatefulWidget {
@@ -81,7 +81,7 @@ class _DoctorHomeState extends State<DoctorHome> {
     List<Map<String, Widget>> opts = [
       {'New Treatment': const NewTreatment()},
       {'View Appointments': const ViewAppointsRequests()},
-      {'View Patient History': const ViewMedHis()},
+      {'View Patient History': const ViewPatHis()},
       {'View Medical\nCertificates Requests': const ViewMedCertReqs()},
       {'Update Profile': const PatientProfile()},
       {'View Feedbacks': const SubmitFeedback()},

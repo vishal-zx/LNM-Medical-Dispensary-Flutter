@@ -12,4 +12,5 @@ class MyRoutes {
   static String docHome = "/docHome";
   static String newTreatment = "/treatment";
   static String viewAppointReq = "/viewAppointments";
+  static String viewPatHis = "/viewPatientHistory";
 }
