@@ -26,26 +26,26 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
   final formKey = GlobalKey<FormState>();
 
   List<Appointments> appoints = [
-      Appointments('Vishal Gupta ', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever fever fever fever fever fever'),
+      Appointments('Vishal Gupta ', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 1, 'fever fever fever fever fever fever'),
       Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever fever fever fever fever fever fever fever fever fever fever fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
+      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever fever fever fever fever fever fever fever fever fever fever fever'),
+      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
       Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
       Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
       Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
+      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
+      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever'),
+      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
+      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
+      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
+      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
+      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
+      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever'),
+      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
       Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
       Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
       Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
+      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
   ];
 
   @override
@@ -242,7 +242,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                       child: RotatedBox(
                                                         quarterTurns: 3,
                                                         child: Text(
-                                                          (appoints[index].isAppointUrgent)?"Urgent":"",
+                                                          "Urgent",
                                                           textAlign: TextAlign.center,
                                                           style:TextStyle(
                                                             fontSize: mqw*0.06,
@@ -255,9 +255,9 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                     )
                                                   ],
                                                 ),
+                                                if(appoints[index].status==2)
                                                 Row(
                                                   children: [
-                                                    if(appoints[index].status!=0 && appoints[index].status==2)
                                                     GestureDetector(
                                                       onTap: () {
                                                         showDialog(
@@ -266,11 +266,19 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                             BackdropFilter(
                                                               filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                                                               child: AlertDialog(
+
                                                                 backgroundColor: Colors.red[300],
                                                                 shape: RoundedRectangleBorder(
                                                                   borderRadius: BorderRadius.circular(mqh*0.025),
                                                                 ),
-                                                                title: const Text("Are you sure you want to reject this appointment request?"),
+                                                                title: Text(
+                                                                  "Are you sure to reject this appointment request?",
+                                                                  style: TextStyle(
+                                                                    fontSize: mqh*0.023,
+                                                                    color:Colors.black,
+                                                                  ),
+                                                                  textAlign: TextAlign.center,
+                                                                ),
                                                                 contentPadding: EdgeInsets.zero,
                                                                 actions: [
                                                                   Row(
@@ -286,7 +294,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                         child: Text(
                                                                           "Yes",
                                                                           style: TextStyle(
-                                                                            fontSize:mqh*0.028
+                                                                            fontSize:mqh*0.022
                                                                           ),
                                                                         )
                                                                       ),
@@ -297,7 +305,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                         child: Text(
                                                                           "No",
                                                                           style: TextStyle(
-                                                                            fontSize:mqh*0.028
+                                                                            fontSize:mqh*0.022
                                                                           ),
                                                                         )
                                                                       )
@@ -331,7 +339,6 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                         ),
                                                       ),
                                                     ),
-                                                    if(appoints[index].status!=1 && appoints[index].status==2)
                                                     GestureDetector(
                                                       onTap: () {
                                                         showDialog(
@@ -344,7 +351,14 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                 shape: RoundedRectangleBorder(
                                                                   borderRadius: BorderRadius.circular(mqh*0.025),
                                                                 ),
-                                                                title: const Text("Are you sure you want to approve this appointment request?"),
+                                                                title: Text(
+                                                                  "Are you sure to approve this appointment request?",
+                                                                  style: TextStyle(
+                                                                    fontSize: mqh*0.023,
+                                                                    color:Colors.black,
+                                                                  ),
+                                                                  textAlign: TextAlign.center,
+                                                                ),
                                                                 contentPadding: EdgeInsets.zero,
                                                                 actions: [
                                                                   Row(
@@ -360,7 +374,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                         child: Text(
                                                                           "Yes",
                                                                           style: TextStyle(
-                                                                            fontSize:mqh*0.028
+                                                                            fontSize:mqh*0.022
                                                                           ),
                                                                         )
                                                                       ),
@@ -371,7 +385,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                         child: Text(
                                                                           "No",
                                                                           style: TextStyle(
-                                                                            fontSize:mqh*0.028
+                                                                            fontSize:mqh*0.022
                                                                           ),
                                                                         )
                                                                       )
@@ -418,6 +432,7 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                         color: (appoints[index].status==1)?Colors.red[400]:Colors.green[400],
                                                         borderRadius: BorderRadius.only(
                                                           bottomLeft: Radius.circular(mqh*0.01),
+                                                          bottomRight: Radius.circular(mqh*0.01),
                                                         )
                                                       ),
                                                       alignment: Alignment.center,
