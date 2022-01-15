@@ -7,9 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/profile.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_appointments.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/view_feedbacks.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_medical_cert_request.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_pat_history.dart';
-import 'package:lnm_medical_dispensary/pages/patient/submit_feedback.dart';
 import 'package:page_transition/page_transition.dart';
 
 class DoctorHome extends StatefulWidget {
@@ -84,7 +84,7 @@ class _DoctorHomeState extends State<DoctorHome> {
       {'View Patient History': const ViewPatHis()},
       {'View Medical\nCertificates Requests': const MedCertReqs()},
       {'Update Profile': const DoctorProfile()},
-      {'View Feedbacks': const SubmitFeedback()},
+      {'View Feedbacks': const ViewFeedbacks()},
       {'Logout': logout(context, mqh)},
     ];
     return GestureDetector(
