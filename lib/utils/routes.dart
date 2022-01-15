@@ -14,4 +14,5 @@ class MyRoutes {
   static String viewAppointReq = "/viewAppointments";
   static String viewPatHis = "/viewPatientHistory";
   static String viewCertificateRequests = "/viewCertificateRequests";
+  static String doctorProfile = "/doctorProfile";
 }
