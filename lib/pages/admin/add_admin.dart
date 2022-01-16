@@ -24,7 +24,7 @@ class _AddAdminState extends State<AddAdmin> {
   List<String> admEmails = [];
    
 
-  Future<void> getDocs() async{
+  Future<void> getAdmins() async{
     QuerySnapshot qs = await FirebaseFirestore.instance.collection('admin').get();
     for(var doc in qs.docs){
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -34,7 +34,7 @@ class _AddAdminState extends State<AddAdmin> {
 
   @override
   void initState(){
-    getDocs();
+    getAdmins().whenComplete(() => setState((){}));
     super.initState();
   }
 
@@ -248,12 +248,12 @@ class _AddAdminState extends State<AddAdmin> {
                                                                             color: Colors.black
                                                                           ),
                                                                         ),
-                                                                        backgroundColor: Colors.amber[300],
+                                                                        backgroundColor: Colors.red[200],
                                                                         elevation: 5,
                                                                         behavior: SnackBarBehavior.floating,
-                                                                        padding: EdgeInsets.all(mqw*0.06),
+                                                                        padding: EdgeInsets.all(mqw*0.04),
                                                                         shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.all(Radius.circular(mqw*0.06))
+                                                                          borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
                                                                         ),
                                                                       )
                                                                     );
@@ -338,17 +338,14 @@ class _AddAdminState extends State<AddAdmin> {
                                           height:mqh*0.008
                                         ),
                                         if(admEmails.isEmpty)
-                                        IconButton(
-                                          onPressed: (){
-                                            setState(() {
-
-                                            });
-                                          }, 
-                                          color: Colors.red,
-                                          icon: Icon(
-                                            Icons.refresh,
-                                            size: mqh*0.03,
-                                          )
+                                        Center(
+                                          child: SizedBox(
+                                            height:mqw*0.05,
+                                            width:mqw*0.05,
+                                            child: const CircularProgressIndicator(
+                                              color: Colors.red,
+                                            ),
+                                          ),
                                         ),
                                         for(var doc in admEmails)
                                         Text(

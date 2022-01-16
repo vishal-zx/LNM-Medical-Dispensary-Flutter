@@ -6,7 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/admin/add_admin.dart';
 import 'package:lnm_medical_dispensary/pages/admin/add_doctor.dart';
-import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
+import 'package:lnm_medical_dispensary/pages/admin/delete_admin.dart';
+import 'package:lnm_medical_dispensary/pages/admin/delete_doctor.dart';
 import 'package:page_transition/page_transition.dart';
 
 class AdminHome extends StatefulWidget {
@@ -77,9 +78,9 @@ class _AdminHomeState extends State<AdminHome> {
     var mqw = MediaQuery.of(context).size.width;
     List<Map<String, Widget>> opts = [
       {'Add Doctor': const AddDoctor()},
-      {'Delete Doctor': const NewTreatment()},
+      {'Delete Doctor': const DeleteDoctor()},
       {'Add Admin': const AddAdmin()},
-      {'Delete Admin': const NewTreatment()},
+      {'Delete Admin': const DeleteAdmin()},
       {'Logout': logout(context, mqh)},
     ];
     return GestureDetector(

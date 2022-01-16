@@ -34,7 +34,7 @@ class _AddDoctorState extends State<AddDoctor> {
 
   @override
   void initState(){
-    getDocs();
+    getDocs().whenComplete(() => setState((){}));
     super.initState();
   }
 
@@ -248,12 +248,12 @@ class _AddDoctorState extends State<AddDoctor> {
                                                                             color: Colors.black
                                                                           ),
                                                                         ),
-                                                                        backgroundColor: Colors.amber[300],
+                                                                        backgroundColor: Colors.red[200],
                                                                         elevation: 5,
                                                                         behavior: SnackBarBehavior.floating,
-                                                                        padding: EdgeInsets.all(mqw*0.06),
+                                                                        padding: EdgeInsets.all(mqw*0.04),
                                                                         shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.all(Radius.circular(mqw*0.06))
+                                                                          borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
                                                                         ),
                                                                       )
                                                                     );
@@ -338,17 +338,14 @@ class _AddDoctorState extends State<AddDoctor> {
                                           height:mqh*0.008
                                         ),
                                         if(docEmails.isEmpty)
-                                        IconButton(
-                                          onPressed: (){
-                                            setState(() {
-
-                                            });
-                                          }, 
-                                          color: Colors.red,
-                                          icon: Icon(
-                                            Icons.refresh,
-                                            size: mqh*0.03,
-                                          )
+                                        Center(
+                                          child: SizedBox(
+                                            height:mqw*0.05,
+                                            width:mqw*0.05,
+                                            child: const CircularProgressIndicator(
+                                              color: Colors.red,
+                                            ),
+                                          ),
                                         ),
                                         for(var doc in docEmails)
                                         Text(
