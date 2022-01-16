@@ -16,4 +16,5 @@ class MyRoutes {
   static String viewCertificateRequests = "/viewCertificateRequests";
   static String doctorProfile = "/doctorProfile";
   static String viewFeedbacks = "/viewFeedbacks";
+  static String adminHome = "/adminHome";
 }

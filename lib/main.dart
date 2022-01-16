@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lnm_medical_dispensary/pages/admin/home.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/profile.dart';
@@ -117,6 +118,7 @@ class _MyAppState extends State<MyApp> {
         MyRoutes.viewCertificateRequests: (context) => const MedCertReqs(),
         MyRoutes.doctorProfile: (context) => const DoctorProfile(),
         MyRoutes.viewFeedbacks: (context) => const ViewFeedbacks(),
+        MyRoutes.adminHome: (context) => const AdminHome(),
       },
     );
   }

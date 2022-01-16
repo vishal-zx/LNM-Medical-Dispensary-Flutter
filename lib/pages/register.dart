@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
+import 'package:lnm_medical_dispensary/pages/admin/home.dart';
 import 'package:page_transition/page_transition.dart';
 
 class Register extends StatefulWidget {
@@ -385,7 +385,7 @@ class _RegisterState extends State<Register> {
                                                       PageTransition(
                                                         type: PageTransitionType.rightToLeft, 
                                                         duration: const Duration(milliseconds: 400),
-                                                        child: const DoctorHome()
+                                                        child: const AdminHome()
                                                       )
                                                     );
                                                   });
