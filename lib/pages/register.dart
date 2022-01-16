@@ -5,6 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lnm_medical_dispensary/pages/admin/home.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
+import 'package:lnm_medical_dispensary/pages/patient/home.dart';
 import 'package:page_transition/page_transition.dart';
 
 class Register extends StatefulWidget {
@@ -385,7 +387,7 @@ class _RegisterState extends State<Register> {
                                                       PageTransition(
                                                         type: PageTransitionType.rightToLeft, 
                                                         duration: const Duration(milliseconds: 400),
-                                                        child: const AdminHome()
+                                                        child: const PatientHome()
                                                       )
                                                     );
                                                   });
@@ -413,6 +415,128 @@ class _RegisterState extends State<Register> {
                                           ),
                                           SizedBox(
                                             height:mqh*0.02
+                                          ),
+                                          Text(
+                                            "Login as (for debug purpose only)",
+                                            style: TextStyle(
+                                              color: Colors.black, 
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: mqh*0.025,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.005
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: Material(
+                                              color:Colors.brown,
+                                              borderRadius: BorderRadius.circular(mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState((){
+                                                    Navigator.push(
+                                                      context, 
+                                                      PageTransition(
+                                                        type: PageTransitionType.rightToLeft, 
+                                                        duration: const Duration(milliseconds: 400),
+                                                        child: const PatientHome()
+                                                      )
+                                                    );
+                                                  });
+                                                },
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(seconds: 1),
+                                                  width: mqw*0.3,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Patient",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.005
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: Material(
+                                              color:Colors.brown,
+                                              borderRadius: BorderRadius.circular(mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState((){
+                                                    Navigator.push(
+                                                      context, 
+                                                      PageTransition(
+                                                        type: PageTransitionType.rightToLeft, 
+                                                        duration: const Duration(milliseconds: 400),
+                                                        child: const DoctorHome()
+                                                      )
+                                                    );
+                                                  });
+                                                },
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(seconds: 1),
+                                                  width: mqw*0.3,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Doctor",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.005
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: Material(
+                                              color:Colors.brown,
+                                              borderRadius: BorderRadius.circular(mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState((){
+                                                    Navigator.push(
+                                                      context, 
+                                                      PageTransition(
+                                                        type: PageTransitionType.rightToLeft, 
+                                                        duration: const Duration(milliseconds: 400),
+                                                        child: const AdminHome()
+                                                      )
+                                                    );
+                                                  });
+                                                },
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(seconds: 1),
+                                                  width: mqw*0.3,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Admin",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                           SizedBox(
                                             height:mqh*0.005
