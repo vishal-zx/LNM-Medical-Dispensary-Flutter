@@ -51,7 +51,7 @@ class _BookAppointmentState extends State<BookAppointment> {
   }
   
   String selectedValue = "USA";
-  num selectedTimeSlot = 0;
+  num selectedTimeSlot = -1;
   String reason = "";
   bool isAppointUrgent = false;
   DateTime selectedDate = DateTime.now();
@@ -59,9 +59,9 @@ class _BookAppointmentState extends State<BookAppointment> {
   @override
   void initState(){
     super.initState();
-    Future.delayed(const Duration(seconds:2), () {
+    Future.delayed(const Duration(seconds:0), () {
         times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
-    });
+    }).whenComplete(() => setState((){}));
   }
 
   @override
@@ -120,6 +120,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                             child: Form(
                               key: formKey,
                               child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,6 +140,10 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       onChanged: (value) {
                                         setState(() {
                                           selectedValue = value;
+                                          Future.delayed(const Duration(seconds:0), () {
+                                              times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
+                                          }).whenComplete(() => setState((){}));
+                                          selectedTimeSlot = -1;
                                         });
                                       },
                                       style:TextStyle(
@@ -189,6 +194,10 @@ class _BookAppointmentState extends State<BookAppointment> {
                                               }
                                               setState(() {
                                                 selectedDate = pickedDate;
+                                                Future.delayed(const Duration(seconds:0), () {
+                                                    times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
+                                                }).whenComplete(() => setState((){}));
+                                                selectedTimeSlot = -1;
                                               });
                                             });
                                           },
@@ -203,7 +212,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                         fontSize: mqh*0.023,
                                         color: Colors.black,
                                       ),
-                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedDate) + " " + ((times==null)?'':times[selectedTimeSlot]),
+                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedDate) + " " + ((times==null || selectedTimeSlot==-1)?'':times[selectedTimeSlot]),
                                     ),
                                     SizedBox(
                                       height:mqh*0.01
@@ -232,9 +241,14 @@ class _BookAppointmentState extends State<BookAppointment> {
                                                 borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
                                               ),
                                               child: Center(child: (times==null)?
-                                              Icon(
-                                                Icons.refresh,
-                                                size:mqh*0.025
+                                              Center(
+                                                child: SizedBox(
+                                                  height:mqw*0.05,
+                                                  width:mqw*0.05,
+                                                  child: const CircularProgressIndicator(
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
                                               ):
                                               Text(
                                                 times[index],

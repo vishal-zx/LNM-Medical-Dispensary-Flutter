@@ -136,7 +136,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                             ),
                                             color: Colors.cyan.shade300,
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Container(      

@@ -92,6 +92,7 @@ class _RequestMedCertState extends State<RequestMedCert> {
                             child: Form(
                               key: formKey,
                               child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +146,7 @@ class _RequestMedCertState extends State<RequestMedCert> {
                                     Text(
                                       "From",
                                       style:TextStyle(
-                                        fontSize: mqh*0.025,
+                                        fontSize: mqh*0.02,
                                         color: Colors.black87,
                                       )
                                     ),
@@ -206,7 +207,7 @@ class _RequestMedCertState extends State<RequestMedCert> {
                                     Text(
                                       "To",
                                       style:TextStyle(
-                                        fontSize: mqh*0.025,
+                                        fontSize: mqh*0.02,
                                         color: Colors.black87,
                                       )
                                     ),

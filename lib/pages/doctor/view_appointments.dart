@@ -122,11 +122,12 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                             ),
                                             color: Colors.cyan.shade300,
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Row(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Container(      
                                                       padding: EdgeInsets.all(mqw*0.03),
