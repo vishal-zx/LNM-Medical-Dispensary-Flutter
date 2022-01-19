@@ -1,12 +1,12 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'patient/home.dart';
-import 'admin/home.dart';
-import 'doctor/home.dart';
 import 'package:page_transition/page_transition.dart';
 
 class Register extends StatefulWidget {
@@ -14,6 +14,20 @@ class Register extends StatefulWidget {
 
   @override
   _RegisterState createState() => _RegisterState();
+}
+
+class User{
+  String username;
+  String email;
+  String fName;
+  String lName;
+  bool isMale;
+  String password;
+  String speciality;
+  String mob;
+  String age;
+
+  User(this.username, this.email, this.fName, this.lName, this.isMale, this.password, this.speciality, this.mob, this.age);
 }
 
 class _RegisterState extends State<Register> {
@@ -30,11 +44,144 @@ class _RegisterState extends State<Register> {
   List<String> roles = ["Patient", "Doctor", "Admin"];  
   final formKey = GlobalKey<FormState>(); 
   bool _showPass = true;
+  bool _check = false;
+  bool _check1 = false;
+  bool reg = false;
+
   void _togglePass(){
     setState(() {
       _showPass = !_showPass;
     });
   }
+
+  check(BuildContext context) async{
+    if(formKey.currentState!.validate()){
+      setState(() {
+        _check1 = true;
+      });
+    }
+    else{
+      setState(() {
+        _check1 = false;
+      });
+    }
+  }
+
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
+  }
+
+  Future<void> patReg(User user) async {
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    try{
+      QuerySnapshot qs = await FirebaseFirestore.instance.collection('patient').where('Email', isEqualTo: email).get();
+      var patients = qs.docs;
+      if(patients.isNotEmpty){
+        setState((){
+          _check = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(snackBar('Account already exists !!'));
+      }else{
+        showDialog(
+          barrierDismissible: false,
+          context: context, 
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: AlertDialog(
+                backgroundColor: Colors.brown.shade100,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(mqw*0.03)),
+                insetPadding: EdgeInsets.only(left:mqw*0.15),
+                content: Container(
+                  alignment: Alignment.center,
+                  width:mqw*0.5,
+                  height:mqh*0.15,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height:mqw*0.1,
+                        width:mqw*0.1,
+                        child: const CircularProgressIndicator(
+                          color: Colors.brown,
+                        ),
+                      ),
+                      SizedBox(
+                        height:mqh*0.035,
+                      ),
+                      Text(
+                        "Registering your account..\nPlease wait..",
+                        textAlign: TextAlign.center,
+                        style:TextStyle(
+                          fontSize: mqh*0.02,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+        );
+        try{
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(email: user.email, password: user.password).then((value) async{
+            await FirebaseFirestore.instance.collection('patient').doc(user.username).set(
+              {
+                'FirstName': user.fName,
+                'LastName': user.lName,
+                'Username': user.username,
+                'Email': user.email,
+                'Mob': user.mob,
+                'Age': user.age,
+                'isMale': user.isMale,
+              }
+            ).then((value){
+              setState(() {
+                reg = true;
+              });
+            });
+          });
+        }on FirebaseAuthException catch(e)
+          {
+            if (e.code == 'weak-password') {
+              setState((){
+                _check = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(snackBar('The password provided is too weak.'));
+            }
+          }
+      }
+    }on FirebaseAuthException {
+      setState((){
+        _check = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(snackBar('Something went wrong! Please try again.'));
+    }
+  }
+
   final PageController _pageController = PageController(
     viewportFraction: 0.5,
     keepPage: true
@@ -48,6 +195,7 @@ class _RegisterState extends State<Register> {
       onTap: () {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         FocusManager.instance.primaryFocus?.unfocus();
+        check(context);
       },
       child: Scaffold(
         backgroundColor: Colors.brown[400],
@@ -105,8 +253,7 @@ class _RegisterState extends State<Register> {
                                 alignment: Alignment.centerRight,
                                 width: mqw*0.85,
                                 height: mqh*0.75,
-                                child: Container(
-                                  padding: EdgeInsets.only(),
+                                child: SizedBox(
                                   width: mqw*0.8,
                                   height: mqh*0.7,
                                   child:Form(
@@ -400,6 +547,32 @@ class _RegisterState extends State<Register> {
                                                 SizedBox(
                                                   height:mqh*0.04
                                                 ),
+                                                Text(
+                                                  "Age",
+                                                  style:TextStyle(
+                                                    fontSize: mqh*0.035,
+                                                    color: Colors.black87,
+                                                  )
+                                                ),
+                                                TextFormField(
+                                                  inputFormatters: <TextInputFormatter>[
+                                                    FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                                                  ],
+                                                  decoration: const InputDecoration(
+                                                    hintText: "Enter your age",
+                                                  ),
+                                                  keyboardType: TextInputType.number,
+                                                  validator: (value){
+                                                    if(value!.isEmpty){return "Age can't be empty!";}
+                                                    else {return null;}
+                                                  },
+                                                  onChanged:(value){
+                                                    age = value;
+                                                  }
+                                                ),
+                                                SizedBox(
+                                                  height:mqh*0.04
+                                                ),
                                                 if(idx==1)
                                                 Text(
                                                   "Speciality",
@@ -427,32 +600,6 @@ class _RegisterState extends State<Register> {
                                                   },
                                                 ),
                                                 if(idx==1)
-                                                SizedBox(
-                                                  height:mqh*0.04
-                                                ),
-                                                Text(
-                                                  "Age",
-                                                  style:TextStyle(
-                                                    fontSize: mqh*0.035,
-                                                    color: Colors.black87,
-                                                  )
-                                                ),
-                                                TextFormField(
-                                                  inputFormatters: <TextInputFormatter>[
-                                                    FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                                                  ],
-                                                  decoration: const InputDecoration(
-                                                    hintText: "Enter your age",
-                                                  ),
-                                                  keyboardType: TextInputType.number,
-                                                  validator: (value){
-                                                    if(value!.isEmpty){return "Age can't be empty!";}
-                                                    else {return null;}
-                                                  },
-                                                  onChanged:(value){
-                                                    age = value;
-                                                  }
-                                                ),
                                                 SizedBox(
                                                   height:mqh*0.04
                                                 ),
@@ -504,6 +651,101 @@ class _RegisterState extends State<Register> {
                                           Container(
                                             alignment: Alignment.center,
                                             child: Material(
+                                              color: (_check == true)?Colors.brown[300]:Colors.brown,
+                                              borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () async{
+                                                  check(context);
+                                                  if(_check1 && !_check){
+                                                    User user = User(username, email, fName, lName, isMale, password, speciality, mob, age);
+                                                    _check=!_check;
+                                                    if(idx == 0){
+                                                      await patReg(user).whenComplete((){
+                                                        if (reg) {
+                                                          Navigator.of(context).pop();
+                                                          showDialog(
+                                                            barrierDismissible: false,
+                                                            context: context, 
+                                                            builder: (BuildContext context) {
+                                                              return WillPopScope(
+                                                                onWillPop: () async => false,
+                                                                child: AlertDialog(
+                                                                  backgroundColor: Colors.brown.shade100,
+                                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(mqw*0.03)),
+                                                                  insetPadding: EdgeInsets.only(left:mqw*0.15),
+                                                                  content: Container(
+                                                                    alignment: Alignment.center,
+                                                                    width:mqw*0.5,
+                                                                    height:mqh*0.17,
+                                                                    child: Column(
+                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                      children: [
+                                                                        Icon(
+                                                                          Icons.done, 
+                                                                          color: Colors.brown.shade500,
+                                                                          size: mqh*0.04
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:mqh*0.02,
+                                                                        ),
+                                                                        Text(
+                                                                          "Account Registered Successfully\nLogging in as ${user.email}",
+                                                                          textAlign: TextAlign.center,
+                                                                          style:TextStyle(
+                                                                            fontSize: mqh*0.02,
+                                                                            color: Colors.black,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          );
+                                                          Future.delayed(const Duration(seconds: 3), () {
+                                                            Navigator.push(
+                                                              context, 
+                                                              PageTransition(
+                                                                type: PageTransitionType.rightToLeft, 
+                                                                duration: const Duration(milliseconds: 400),
+                                                                child: const PatientHome()
+                                                              )
+                                                            );
+                                                          });
+                                                        }
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                child: AnimatedContainer(
+                                                  duration: _check? const Duration(milliseconds: 600):const Duration(seconds: 0),
+                                                  width: _check?mqw*0.125: mqw*0.3,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: _check?
+                                                  const Icon(
+                                                    Icons.done, 
+                                                    color: Colors.white,
+                                                  ):
+                                                  Text(
+                                                    "Sign Up",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.005
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: Material(
                                               color:Colors.brown,
                                               borderRadius: BorderRadius.circular(mqw*0.03),
                                               child: InkWell(
@@ -535,85 +777,6 @@ class _RegisterState extends State<Register> {
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height:mqh*0.005
-                                          ),
-                                          Container(
-                                            alignment: Alignment.center,
-                                            child: Material(
-                                              color:Colors.brown,
-                                              borderRadius: BorderRadius.circular(mqw*0.03),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState((){
-                                                    Navigator.push(
-                                                      context, 
-                                                      PageTransition(
-                                                        type: PageTransitionType.rightToLeft, 
-                                                        duration: const Duration(milliseconds: 400),
-                                                        child: const DoctorHome()
-                                                      )
-                                                    );
-                                                  });
-                                                },
-                                                child: AnimatedContainer(
-                                                  duration: const Duration(seconds: 1),
-                                                  width: mqw*0.3,
-                                                  height: mqw*0.125,
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    "Doctor",
-                                                    style: TextStyle(
-                                                      color: Colors.white, 
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: mqh*0.025,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height:mqh*0.005
-                                          ),
-                                          Container(
-                                            alignment: Alignment.center,
-                                            child: Material(
-                                              color:Colors.brown,
-                                              borderRadius: BorderRadius.circular(mqw*0.03),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState((){
-                                                    Navigator.push(
-                                                      context, 
-                                                      PageTransition(
-                                                        type: PageTransitionType.rightToLeft, 
-                                                        duration: const Duration(milliseconds: 400),
-                                                        child: const AdminHome()
-                                                      )
-                                                    );
-                                                  });
-                                                },
-                                                child: AnimatedContainer(
-                                                  duration: const Duration(seconds: 1),
-                                                  width: mqw*0.3,
-                                                  height: mqw*0.125,
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    "Admin",
-                                                    style: TextStyle(
-                                                      color: Colors.white, 
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: mqh*0.025,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height:mqh*0.005
                                           ),
                                         ],
                                       ),
