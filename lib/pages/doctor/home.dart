@@ -70,6 +70,7 @@ Widget logout(BuildContext context, double mqh){
 class _DoctorHomeState extends State<DoctorHome> {
   
   Future<bool> _exitApp() async {
+    Navigator.pop(context,true);
     SystemNavigator.pop();
     return true;
   }
@@ -92,113 +93,116 @@ class _DoctorHomeState extends State<DoctorHome> {
       child: Scaffold(
         backgroundColor: Colors.cyan[300],
         body: SafeArea(
-          child: SingleChildScrollView( // REMEMBER TO REMOVE THIS WIDGET
-            child: Container(
-              alignment: Alignment.bottomRight,
-              height: mqh-MediaQuery.of(context).padding.top,
-              width: mqw,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    child: Column(
-                      children: [
-                        Text(
-                          "Welcome to",
-                          style:TextStyle(
-                            fontSize: mqh*0.025,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          )
-                        ),
-                        Text(
-                          "LNM Medical Dispensary",
-                          style:TextStyle(
-                            fontSize: mqh*0.035,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          )
-                        ),
-                      ],
-                    )
-                  ),
-                  SizedBox(
-                    height:mqh*0.02
-                  ),
-                  Container(
-                    alignment: Alignment.bottomLeft,
-                    child: Stack(
-                      clipBehavior: Clip.none, 
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.cyan[100],
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(mqh*0.05),
+          child: WillPopScope(
+            onWillPop: _exitApp,
+            child: SingleChildScrollView( // REMEMBER TO REMOVE THIS WIDGET
+              child: Container(
+                alignment: Alignment.bottomRight,
+                height: mqh-MediaQuery.of(context).padding.top,
+                width: mqw,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      alignment: Alignment.bottomCenter,
+                      child: Column(
+                        children: [
+                          Text(
+                            "Welcome to",
+                            style:TextStyle(
+                              fontSize: mqh*0.025,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             )
                           ),
-                          alignment: Alignment.bottomLeft,
-                          width: mqw*0.9,
-                          height: mqh*0.8,
-                          child: Container(
-                            padding: EdgeInsets.only(left:mqw*0.07, right:mqw*0.02),
-                            width: mqw*0.84,
-                            height: mqh*0.755,
-                            child: ListView.builder(
-                              physics: const BouncingScrollPhysics(), 
-                              itemCount: opts.length,
-                              itemBuilder: (context, index){
-                                return GestureDetector(
-                                  onTap:(){
-                                    if(index!=opts.length-1){
-                                      Navigator.push(
-                                        context, 
-                                        PageTransition(
-                                          type: PageTransitionType.leftToRightJoined, 
-                                          duration: const Duration(milliseconds: 400),
-                                          child: opts[index].values.first,
-                                          childCurrent: const DoctorHome()
-                                        )
-                                      );
-                                    }
-                                    else{
-                                      showDialog(
-                                        context: context, 
-                                        builder: (BuildContext context) => logout(context, mqh)
-                                      );
-                                    }
-                                  },
-                                  child: SizedBox(
-                                    height:mqh*0.18,
-                                    child: Card(  
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(mqh*0.01)),
-                                      color: Colors.cyanAccent[700],
-                                      child: Center(
-                                        child: Text(
-                                          opts[index].keys.first,
-                                          textAlign: TextAlign.center,
-                                          style:TextStyle(
-                                            fontSize: mqw*0.06,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
+                          Text(
+                            "LNM Medical Dispensary",
+                            style:TextStyle(
+                              fontSize: mqh*0.035,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            )
+                          ),
+                        ],
+                      )
+                    ),
+                    SizedBox(
+                      height:mqh*0.02
+                    ),
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      child: Stack(
+                        clipBehavior: Clip.none, 
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.cyan[100],
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(mqh*0.05),
+                              )
+                            ),
+                            alignment: Alignment.bottomLeft,
+                            width: mqw*0.9,
+                            height: mqh*0.8,
+                            child: Container(
+                              padding: EdgeInsets.only(left:mqw*0.07, right:mqw*0.02),
+                              width: mqw*0.84,
+                              height: mqh*0.755,
+                              child: ListView.builder(
+                                physics: const BouncingScrollPhysics(), 
+                                itemCount: opts.length,
+                                itemBuilder: (context, index){
+                                  return GestureDetector(
+                                    onTap:(){
+                                      if(index!=opts.length-1){
+                                        Navigator.push(
+                                          context, 
+                                          PageTransition(
+                                            type: PageTransitionType.leftToRightJoined, 
+                                            duration: const Duration(milliseconds: 400),
+                                            child: opts[index].values.first,
+                                            childCurrent: const DoctorHome()
                                           )
+                                        );
+                                      }
+                                      else{
+                                        showDialog(
+                                          context: context, 
+                                          builder: (BuildContext context) => logout(context, mqh)
+                                        );
+                                      }
+                                    },
+                                    child: SizedBox(
+                                      height:mqh*0.18,
+                                      child: Card(  
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(mqh*0.01)),
+                                        color: Colors.cyanAccent[700],
+                                        child: Center(
+                                          child: Text(
+                                            opts[index].keys.first,
+                                            textAlign: TextAlign.center,
+                                            style:TextStyle(
+                                              fontSize: mqw*0.06,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            )
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  ),
-                                );
-                              }
+                                      )
+                                    ),
+                                  );
+                                }
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

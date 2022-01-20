@@ -345,8 +345,8 @@ class _RegisterState extends State<Register> {
                                       context, PageTransition(
                                         type: PageTransitionType.rightToLeft, 
                                         duration: const Duration(milliseconds: 400),
-                                        child: (idx==0)?const PatientHome():
-                                                (idx==1)?const DoctorHome(): const AdminHome(),
+                                        child: (index==0)?const PatientHome():
+                                                (index==1)?const DoctorHome(): const AdminHome(),
                                       )
                                     );
                                   });
