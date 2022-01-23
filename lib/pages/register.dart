@@ -18,7 +18,7 @@ class Register extends StatefulWidget {
   _RegisterState createState() => _RegisterState();
 }
 
-class User{
+class MyUser{
   String username;
   String email;
   String fName;
@@ -29,7 +29,7 @@ class User{
   String mob;
   String age;
 
-  User(this.username, this.email, this.fName, this.lName, this.isMale, this.password, this.speciality, this.mob, this.age);
+  MyUser(this.username, this.email, this.fName, this.lName, this.isMale, this.password, this.speciality, this.mob, this.age);
 }
 
 class _RegisterState extends State<Register> {
@@ -119,7 +119,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Future<void> register(User user, int index) async{
+  Future<void> register(MyUser user, int index) async{
     String role = roles[index].toLowerCase();
     var mqh = MediaQuery.of(context).size.height;
     var mqw = MediaQuery.of(context).size.width;
@@ -340,7 +340,13 @@ class _RegisterState extends State<Register> {
                                       ],
                                     ),
                                   );
-                                  Future.delayed(const Duration(seconds: 3), () {
+                                  Future.delayed(const Duration(seconds: 3), () async{
+                                    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value) async {
+                                      User? user = FirebaseAuth.instance.currentUser;
+                                      if(user!=null && !user.emailVerified){
+                                        await user.sendEmailVerification();
+                                      }
+                                    });
                                     Navigator.push(
                                       context, PageTransition(
                                         type: PageTransitionType.rightToLeft, 
@@ -994,7 +1000,7 @@ class _RegisterState extends State<Register> {
                                                     onTap: () async{
                                                       check(context);
                                                       if(_check1 && !_check){
-                                                        User user = User(username, email, fName, lName, isMale, password, speciality, mob, age);
+                                                        MyUser user = MyUser(username, email, fName, lName, isMale, password, speciality, mob, age);
                                                         _check=!_check;
                                                         await register(user, idx).whenComplete((){
                                                           if (reg && idx==0) {
