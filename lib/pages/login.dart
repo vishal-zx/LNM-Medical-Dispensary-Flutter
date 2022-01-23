@@ -619,7 +619,7 @@ class _LoginState extends State<Login> {
                                               onTap: () {
                                                 Navigator.push(
                                                   context, PageTransition(
-                                                    type: PageTransitionType.rightToLeft, 
+                                                    type: PageTransitionType.bottomToTop, 
                                                     duration: const Duration(milliseconds: 400),
                                                     child: const Register()
                                                   )
