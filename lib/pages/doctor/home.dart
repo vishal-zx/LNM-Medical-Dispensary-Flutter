@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,7 @@ import 'package:lnm_medical_dispensary/pages/doctor/view_feedbacks.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_medical_cert_request.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_pat_history.dart';
 import 'package:page_transition/page_transition.dart';
+import '../login.dart';
 
 class DoctorHome extends StatefulWidget {
   const DoctorHome({ Key? key }) : super(key: key);
@@ -19,7 +21,7 @@ class DoctorHome extends StatefulWidget {
   _DoctorHomeState createState() => _DoctorHomeState();
 }
 
-Widget logout(BuildContext context, double mqh){
+Widget logout(BuildContext context, double mqh, double mqw){
   return BackdropFilter(
     filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     child: AlertDialog(
@@ -40,7 +42,62 @@ Widget logout(BuildContext context, double mqh){
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-              onPressed: (){
+              onPressed: ()async{
+                showDialog(
+                  barrierDismissible: false,
+                  context: context, 
+                  builder: (BuildContext context) {
+                    return WillPopScope(
+                      onWillPop: () async => false,
+                      child: AlertDialog(
+                        backgroundColor: Colors.cyan.shade100,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(mqw*0.03)),
+                        insetPadding: EdgeInsets.only(left:mqw*0.15),
+                        content: Container(
+                          alignment: Alignment.center,
+                          width:mqw*0.5,
+                          height:mqh*0.25,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height:mqw*0.1,
+                                width:mqw*0.1,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.cyan,
+                                ),
+                              ),
+                              SizedBox(
+                                height:mqh*0.035,
+                              ),
+                              Text(
+                                "Signing out..\nPlease wait..",
+                                textAlign: TextAlign.center,
+                                style:TextStyle(
+                                  fontSize: mqh*0.02,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                );
+                await FirebaseAuth.instance.signOut().then((value) { 
+                  Future.delayed(const Duration(seconds: 2), () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft, 
+                        duration: const Duration(milliseconds: 400),
+                        child: const Login(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
+                  });
+                });
               },
               child: Text(
                 "Logout",
@@ -86,7 +143,7 @@ class _DoctorHomeState extends State<DoctorHome> {
       {'View Medical\nCertificates Requests': const MedCertReqs()},
       {'Update Profile': const DoctorProfile()},
       {'View Feedbacks': const ViewFeedbacks()},
-      {'Logout': logout(context, mqh)},
+      {'Logout': logout(context, mqh, mqw)},
     ];
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -170,7 +227,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                                       else{
                                         showDialog(
                                           context: context, 
-                                          builder: (BuildContext context) => logout(context, mqh)
+                                          builder: (BuildContext context) => logout(context, mqh, mqw)
                                         );
                                       }
                                     },

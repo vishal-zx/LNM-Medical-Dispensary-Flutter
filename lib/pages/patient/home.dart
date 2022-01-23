@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.da
 import 'package:lnm_medical_dispensary/pages/patient/view_med_cert_reqs.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:page_transition/page_transition.dart';
+import '../login.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({ Key? key }) : super(key: key);
@@ -20,11 +22,11 @@ class PatientHome extends StatefulWidget {
   _PatientHomeState createState() => _PatientHomeState();
 }
 
-Widget logout(BuildContext context, double mqh){
+Widget logout(BuildContext context, double mqh, double mqw){
   return BackdropFilter(
     filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     child: AlertDialog(
-      backgroundColor: Colors.orange[300],
+      backgroundColor: Colors.amber[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(mqh*0.025),
       ),
@@ -41,7 +43,62 @@ Widget logout(BuildContext context, double mqh){
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-              onPressed: (){
+              onPressed: ()async{
+                showDialog(
+                  barrierDismissible: false,
+                  context: context, 
+                  builder: (BuildContext context) {
+                    return WillPopScope(
+                      onWillPop: () async => false,
+                      child: AlertDialog(
+                        backgroundColor: Colors.amber.shade100,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(mqw*0.03)),
+                        insetPadding: EdgeInsets.only(left:mqw*0.15),
+                        content: Container(
+                          alignment: Alignment.center,
+                          width:mqw*0.5,
+                          height:mqh*0.25,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height:mqw*0.1,
+                                width:mqw*0.1,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.amber,
+                                ),
+                              ),
+                              SizedBox(
+                                height:mqh*0.035,
+                              ),
+                              Text(
+                                "Signing out..\nPlease wait..",
+                                textAlign: TextAlign.center,
+                                style:TextStyle(
+                                  fontSize: mqh*0.02,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                );
+                await FirebaseAuth.instance.signOut().then((value) { 
+                  Future.delayed(const Duration(seconds: 2), () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft, 
+                        duration: const Duration(milliseconds: 400),
+                        child: const Login(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
+                  });
+                });
               },
               child: Text(
                 "Logout",
@@ -88,7 +145,7 @@ class _PatientHomeState extends State<PatientHome> {
       {'View Medical\nCertificates History': const ViewMedCertReqs()},
       {'Update Profile': const PatientProfile()},
       {'Submit Feedback': const SubmitFeedback()},
-      {'Logout': logout(context, mqh)},
+      {'Logout': logout(context, mqh, mqw)},
     ];
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -172,7 +229,7 @@ class _PatientHomeState extends State<PatientHome> {
                                       else{
                                         showDialog(
                                           context: context, 
-                                          builder: (BuildContext context) => logout(context, mqh)
+                                          builder: (BuildContext context) => logout(context, mqh, mqw)
                                         );
                                       }
                                     },
