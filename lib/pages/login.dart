@@ -386,6 +386,9 @@ class _LoginState extends State<Login> {
                                                                         color: Colors.black,
                                                                       ),
                                                                     ),
+                                                                    SizedBox(
+                                                                      height:mqh*0.015,
+                                                                    ),
                                                                     Container(
                                                                       padding: EdgeInsets.all(mqw*0.02),
                                                                       decoration: BoxDecoration(
@@ -393,7 +396,8 @@ class _LoginState extends State<Login> {
                                                                         borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
                                                                       ),
                                                                       child: GestureDetector(
-                                                                        onTap: () {
+                                                                        onTap: () async {
+                                                                          await user.sendEmailVerification();
                                                                           FirebaseAuth.instance.signOut();
                                                                           Navigator.of(context).pop();
                                                                           setState(() {
