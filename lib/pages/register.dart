@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'doctor/home.dart';
-import 'admin/home.dart';
+import 'login.dart';
 import 'patient/home.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -311,11 +310,18 @@ class _RegisterState extends State<Register> {
                                   'isMale': user.isMale,
                                   if(index==1)  'Speciality':user.speciality,
                                 });
-                              }).then((value){
-                                setState(() {
+                              }).then((value)async{
+                                setState((){
                                   reg = true;
                                 });
                                 if (reg) {
+                                  await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value) async {
+                                    User? user = FirebaseAuth.instance.currentUser;
+                                    if(user!=null){
+                                      await user.sendEmailVerification();
+                                    }
+                                    await FirebaseAuth.instance.signOut();
+                                  });
                                   Navigator.of(context).pop();
                                   alertBox(
                                     Column(
@@ -330,32 +336,46 @@ class _RegisterState extends State<Register> {
                                           height:mqh*0.02,
                                         ),
                                         Text(
-                                          "Account Registered Successfully!\nLogging in as ${user.email}",
+                                          "Account Registered Successfully!\nPlease verify mail before login. Verification mail sent to ${user.email}.",
                                           textAlign: TextAlign.center,
                                           style:TextStyle(
                                             fontSize: mqh*0.02,
                                             color: Colors.black,
                                           ),
                                         ),
+                                        SizedBox(
+                                          height:mqh*0.02,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.all(mqw*0.02),
+                                          decoration: BoxDecoration(
+                                            color: Colors.brown[800],
+                                            borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                              Navigator.push(
+                                                context, PageTransition(
+                                                  type: PageTransitionType.topToBottom, 
+                                                  duration: const Duration(milliseconds: 400),
+                                                  child: const Login(),
+                                                )
+                                              );
+                                            },
+                                            child: Text(
+                                              "Okay!",
+                                              textAlign: TextAlign.center,
+                                              style:TextStyle(
+                                                fontSize: mqh*0.02,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   );
-                                  Future.delayed(const Duration(seconds: 3), () async{
-                                    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value) async {
-                                      User? user = FirebaseAuth.instance.currentUser;
-                                      if(user!=null && !user.emailVerified){
-                                        await user.sendEmailVerification();
-                                      }
-                                    });
-                                    Navigator.push(
-                                      context, PageTransition(
-                                        type: PageTransitionType.rightToLeft, 
-                                        duration: const Duration(milliseconds: 400),
-                                        child: (index==0)?const PatientHome():
-                                                (index==1)?const DoctorHome(): const AdminHome(),
-                                      )
-                                    );
-                                  });
                                 }
                               });
                             }on FirebaseAuthException catch(e){
@@ -441,14 +461,14 @@ class _RegisterState extends State<Register> {
             _check = false;
             Navigator.of(context).pop();
           });
-          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account exist as doctor. Kindly change role.!!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar('Email alloted as doctor. Kindly change role.!!'));
         }
         else if(docsA.isNotEmpty){
           setState((){
             _check = false;
             Navigator.of(context).pop();
           });
-          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account exist as admin. Kindly change role.!!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar('Email alloted as admin. Kindly change role.!!'));
         }
         else{
           alertBox(
@@ -1033,8 +1053,7 @@ class _RegisterState extends State<Register> {
                                                                 context, PageTransition(
                                                                   type: PageTransitionType.rightToLeft, 
                                                                   duration: const Duration(milliseconds: 400),
-                                                                  child: (idx==0)?const PatientHome():
-                                                                          (idx==1)?const DoctorHome(): const AdminHome(),
+                                                                  child: const PatientHome(),
                                                                 )
                                                               );
                                                             });
