@@ -441,14 +441,14 @@ class _RegisterState extends State<Register> {
             _check = false;
             Navigator.of(context).pop();
           });
-          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account added as doctor. Kindly change role.!!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account exist as doctor. Kindly change role.!!'));
         }
         else if(docsA.isNotEmpty){
           setState((){
             _check = false;
             Navigator.of(context).pop();
           });
-          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account added as admin. Kindly change role.!!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar('Account exist as admin. Kindly change role.!!'));
         }
         else{
           alertBox(
