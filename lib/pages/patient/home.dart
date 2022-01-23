@@ -162,7 +162,7 @@ class _PatientHomeState extends State<PatientHome> {
                                         Navigator.push(
                                           context, 
                                           PageTransition(
-                                            type: PageTransitionType.leftToRightJoined, 
+                                            type: PageTransitionType.leftToRight, 
                                             duration: const Duration(milliseconds: 400),
                                             child: opts[index].values.first,
                                             childCurrent: const PatientHome()

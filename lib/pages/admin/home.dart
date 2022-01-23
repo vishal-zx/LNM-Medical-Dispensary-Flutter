@@ -156,7 +156,7 @@ class _AdminHomeState extends State<AdminHome> {
                                         Navigator.push(
                                           context, 
                                           PageTransition(
-                                            type: PageTransitionType.leftToRightJoined, 
+                                            type: PageTransitionType.leftToRight, 
                                             duration: const Duration(milliseconds: 400),
                                             child: opts[index].values.first,
                                             childCurrent: const AdminHome()
