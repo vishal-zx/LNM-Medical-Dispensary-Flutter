@@ -283,17 +283,12 @@ class _LoginState extends State<Login> {
                                                           SizedBox(
                                                             height:mqh*0.035,
                                                           ),
-                                                          GestureDetector(
-                                                            onTap: () {
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                            child: Text(
-                                                              "Signing in..\nPlease wait..",
-                                                              textAlign: TextAlign.center,
-                                                              style:TextStyle(
-                                                                fontSize: mqh*0.02,
-                                                                color: Colors.black,
-                                                              ),
+                                                          Text(
+                                                            "Signing in..\nPlease wait..",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqh*0.02,
+                                                              color: Colors.black,
                                                             ),
                                                           ),
                                                         ],
