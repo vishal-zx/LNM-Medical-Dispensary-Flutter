@@ -2,8 +2,6 @@ import 'dart:core';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:search_choices/search_choices.dart';
 
 class DeleteDoctor extends StatefulWidget {

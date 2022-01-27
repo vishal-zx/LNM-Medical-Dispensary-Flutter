@@ -1,8 +1,5 @@
 import 'dart:core';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:search_choices/search_choices.dart';
 
 class NewTreatment extends StatefulWidget {

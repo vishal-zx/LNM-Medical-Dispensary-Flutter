@@ -1,8 +1,5 @@
 import 'dart:core';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 
