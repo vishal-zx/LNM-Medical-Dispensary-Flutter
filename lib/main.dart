@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,13 @@ Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  var email = prefs.getString('email');
+  if(email!=null){
+    QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Email', isEqualTo: email).get();
+    QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Email', isEqualTo: email).get();
+    QuerySnapshot qsA = await FirebaseFirestore.instance.collection('admin').where('Email', isEqualTo: email).get();
+    route = (qsP.docs.isNotEmpty)?MyRoutes.patHome:(qsD.docs.isNotEmpty)?MyRoutes.docHome:(qsD.docs.isNotEmpty)?MyRoutes.adminHome:MyRoutes.login;
+  }
   runApp(const MyApp());
 }
 
@@ -79,7 +87,7 @@ class _MyAppState extends State<MyApp> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: MyRoutes.login,
+      initialRoute: route,
       themeMode: ThemeMode.light,
       theme: ThemeData(
         primarySwatch:const MaterialColor(

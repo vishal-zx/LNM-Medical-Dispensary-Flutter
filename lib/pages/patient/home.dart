@@ -11,6 +11,7 @@ import 'package:lnm_medical_dispensary/pages/patient/view_appointment_history.da
 import 'package:lnm_medical_dispensary/pages/patient/view_med_cert_reqs.dart';
 import 'package:lnm_medical_dispensary/pages/patient/view_medical_history.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../login.dart';
 
 class PatientHome extends StatefulWidget {
@@ -84,7 +85,9 @@ Widget logout(BuildContext context, double mqh, double mqw){
                     );
                   }
                 );
-                await FirebaseAuth.instance.signOut().then((value) { 
+                await FirebaseAuth.instance.signOut().then((value) async{ 
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.remove('email');
                   Future.delayed(const Duration(seconds: 2), () {
                     Navigator.pushAndRemoveUntil(
                       context,

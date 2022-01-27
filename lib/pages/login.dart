@@ -7,7 +7,7 @@ import 'package:lnm_medical_dispensary/pages/admin/home.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/home.dart';
 import 'package:lnm_medical_dispensary/pages/register.dart';
 import 'package:page_transition/page_transition.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'patient/home.dart';
 
 class Login extends StatefulWidget {
@@ -316,7 +316,7 @@ class _LoginState extends State<Login> {
                                                       await FirebaseAuth.instance.signInWithEmailAndPassword(
                                                         email: email, 
                                                         password: password
-                                                      ).then((result){
+                                                      ).then((result)async{
                                                         User? user = FirebaseAuth.instance.currentUser;
                                                         if(user != null) {
                                                           if(role == 0){
@@ -344,6 +344,8 @@ class _LoginState extends State<Login> {
                                                                 ],
                                                               ),
                                                             );
+                                                            SharedPreferences sp = await SharedPreferences.getInstance();
+                                                            sp.setString('email', email);
                                                             Future.delayed(const Duration(seconds: 2), () {
                                                               Navigator.push(
                                                                 context, PageTransition(
@@ -435,6 +437,8 @@ class _LoginState extends State<Login> {
                                                                   ],
                                                                 ),
                                                               );
+                                                              SharedPreferences sp = await SharedPreferences.getInstance();
+                                                              sp.setString('email', email);
                                                               Future.delayed(const Duration(seconds: 2), () {
                                                                 Navigator.push(
                                                                   context, PageTransition(

@@ -7,6 +7,7 @@ import 'package:lnm_medical_dispensary/pages/admin/add_admin.dart';
 import 'package:lnm_medical_dispensary/pages/admin/add_doctor.dart';
 import 'package:lnm_medical_dispensary/pages/admin/delete_admin.dart';
 import 'package:lnm_medical_dispensary/pages/admin/delete_doctor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../login.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -81,7 +82,9 @@ Widget logout(BuildContext context, double mqh, double mqw){
                     );
                   }
                 );
-                await FirebaseAuth.instance.signOut().then((value) { 
+                await FirebaseAuth.instance.signOut().then((value)async{
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.remove('email'); 
                   Future.delayed(const Duration(seconds: 2), () {
                     Navigator.pushAndRemoveUntil(
                       context,

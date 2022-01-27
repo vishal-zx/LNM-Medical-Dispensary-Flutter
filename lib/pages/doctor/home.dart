@@ -10,6 +10,7 @@ import 'package:lnm_medical_dispensary/pages/doctor/view_feedbacks.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_medical_cert_request.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_pat_history.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../login.dart';
 
 class DoctorHome extends StatefulWidget {
@@ -83,7 +84,9 @@ Widget logout(BuildContext context, double mqh, double mqw){
                     );
                   }
                 );
-                await FirebaseAuth.instance.signOut().then((value) { 
+                await FirebaseAuth.instance.signOut().then((value) async{
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.remove('email');
                   Future.delayed(const Duration(seconds: 2), () {
                     Navigator.pushAndRemoveUntil(
                       context,

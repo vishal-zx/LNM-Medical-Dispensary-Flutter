@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
 import 'patient/home.dart';
 import 'package:page_transition/page_transition.dart';
@@ -1019,7 +1020,7 @@ class _RegisterState extends State<Register> {
                                                       if(_check1 && !_check){
                                                         MyUser user = MyUser(username, email, fName, lName, isMale, password, speciality, mob, age);
                                                         _check=!_check;
-                                                        await register(user, idx).whenComplete((){
+                                                        await register(user, idx).whenComplete(()async{
                                                           if (reg && idx==0) {
                                                             Navigator.of(context).pop();
                                                             alertBox(
@@ -1045,6 +1046,8 @@ class _RegisterState extends State<Register> {
                                                                 ],
                                                               ),
                                                             );
+                                                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                                                            prefs.setString('email', email);
                                                             Future.delayed(const Duration(seconds: 3), () {
                                                               Navigator.push(
                                                                 context, PageTransition(
