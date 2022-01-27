@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
@@ -37,24 +38,38 @@ class _BookAppointmentState extends State<BookAppointment> {
 
   bool _check1 = false; 
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  List<DropdownMenuItem<String>> dropDownDocs = [];
+
+  Future<void> getDoctors() async{
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('doctor').orderBy('FirstName').get();
+    var doctors = qs.docs;
+    for(var doc in doctors){
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if(data.containsKey('Username')){
+        dropDownDocs.add(DropdownMenuItem(
+          child: Text("Dr. ${data['FirstName']} ${data['LastName']}"),
+          value: data['Username'],
+        ));
+      }
+    }
   }
   
-  String selectedValue = "USA";
+  String selectedValue = "";
   num selectedTimeSlot = -1;
   String reason = "";
   bool isAppointUrgent = false;
+  bool dataLoaded = false;
   DateTime selectedDate = DateTime.now();
 
   @override
   void initState(){
+    if(dropDownDocs.isEmpty){
+      getDoctors().then((value){
+        setState(() {
+          dataLoaded = true;
+        });
+      });
+    }
     super.initState();
     Future.delayed(const Duration(seconds:0), () {
         times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
@@ -116,7 +131,33 @@ class _BookAppointmentState extends State<BookAppointment> {
                             height: mqh*0.755,
                             child: Form(
                               key: formKey,
-                              child: SingleChildScrollView(
+                              child: (!dataLoaded)?Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height:mqw*0.1,
+                                      width:mqw*0.1,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.amber.shade800,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.035,
+                                    ),
+                                    Text(
+                                      "Loading Data ...",
+                                      textAlign: TextAlign.center,
+                                      style:TextStyle(
+                                        fontSize: mqh*0.02,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ):
+                              SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -130,7 +171,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       )
                                     ),
                                     SearchChoices.single(
-                                      items: dropdownItems,
+                                      items: dropDownDocs,
                                       value: selectedValue,
                                       hint: "Select one",
                                       searchHint: null,
