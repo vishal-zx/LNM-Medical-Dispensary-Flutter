@@ -123,298 +123,301 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Container(      
-                                                      padding: EdgeInsets.all(mqw*0.03),
-                                                      width:mqw*0.565,
-                                                      height: mqh*0.145,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.only(
-                                                          topLeft: Radius.circular(mqh*0.01),
-                                                          bottomLeft: Radius.circular(mqh*0.01),
-                                                        )
-                                                      ),
-                                                      alignment: Alignment.centerLeft,
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: [
-                                                          Row(
+                                                Expanded(
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Container(      
+                                                          padding: EdgeInsets.all(mqw*0.03),
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.only(
+                                                              topLeft: Radius.circular(mqh*0.01),
+                                                              bottomLeft: Radius.circular(mqh*0.01),
+                                                            )
+                                                          ),
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Column(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                             children: [
-                                                              Text(
-                                                                "Patient:",
-                                                                textAlign: TextAlign.center,
-                                                                style:TextStyle(
-                                                                  fontSize: mqw*0.04,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.black87,
-                                                                )
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    "Patient:",
+                                                                    textAlign: TextAlign.center,
+                                                                    style:TextStyle(
+                                                                      fontSize: mqw*0.04,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.black87,
+                                                                    )
+                                                                  ),
+                                                                  Flexible(
+                                                                    child: Text(
+                                                                      " "+ appoints[index].patient,
+                                                                      textAlign: TextAlign.left,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      softWrap:false,
+                                                                      maxLines: 1,
+                                                                      style:TextStyle(
+                                                                        fontSize: mqw*0.04,
+                                                                        color: Colors.black87,
+                                                                      )
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                              Flexible(
-                                                                child: Text(
-                                                                  " "+ appoints[index].patient,
-                                                                  textAlign: TextAlign.left,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  softWrap:false,
-                                                                  maxLines: 1,
-                                                                  style:TextStyle(
-                                                                    fontSize: mqw*0.04,
-                                                                    color: Colors.black87,
-                                                                  )
-                                                                ),
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    "Timing:",
+                                                                    textAlign: TextAlign.center,
+                                                                    style:TextStyle(
+                                                                      fontSize: mqw*0.04,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.black87,
+                                                                    )
+                                                                  ),
+                                                                  Flexible(
+                                                                    child: Text(
+                                                                      " "+ appoints[index].dateTime,
+                                                                      textAlign: TextAlign.left,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      softWrap:false,
+                                                                      maxLines: 1,
+                                                                      style:TextStyle(
+                                                                        fontSize: mqw*0.04,
+                                                                        color: Colors.black87,
+                                                                      )
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Text(
+                                                                    "Reason:",
+                                                                    textAlign: TextAlign.center,
+                                                                    style:TextStyle(
+                                                                      fontSize: mqw*0.04,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.black87,
+                                                                    )
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width:mqw*0.01
+                                                                  ),
+                                                                  Flexible(
+                                                                    child: Text(
+                                                                      appoints[index].reason,
+                                                                      textAlign: TextAlign.left,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      softWrap:false,
+                                                                      maxLines: 2,
+                                                                      style:TextStyle(
+                                                                        fontSize: mqw*0.04,
+                                                                        color: Colors.black87,
+                                                                      )
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ],
                                                           ),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                "Timing:",
-                                                                textAlign: TextAlign.center,
-                                                                style:TextStyle(
-                                                                  fontSize: mqw*0.04,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.black87,
-                                                                )
-                                                              ),
-                                                              Flexible(
-                                                                child: Text(
-                                                                  " "+ appoints[index].dateTime,
-                                                                  textAlign: TextAlign.left,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  softWrap:false,
-                                                                  maxLines: 1,
-                                                                  style:TextStyle(
-                                                                    fontSize: mqw*0.04,
-                                                                    color: Colors.black87,
-                                                                  )
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                "Reason:",
-                                                                textAlign: TextAlign.center,
-                                                                style:TextStyle(
-                                                                  fontSize: mqw*0.04,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.black87,
-                                                                )
-                                                              ),
-                                                              SizedBox(
-                                                                width:mqw*0.01
-                                                              ),
-                                                              Flexible(
-                                                                child: Text(
-                                                                  appoints[index].reason,
-                                                                  textAlign: TextAlign.left,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  softWrap:false,
-                                                                  maxLines: 2,
-                                                                  style:TextStyle(
-                                                                    fontSize: mqw*0.04,
-                                                                    color: Colors.black87,
-                                                                  )
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    if(appoints[index].isAppointUrgent)
-                                                    Container(  
-                                                      padding: EdgeInsets.all(mqw*0.02),
-                                                      width:mqw*0.154,
-                                                      height: mqh*0.145,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.yellow[400],
-                                                        borderRadius: BorderRadius.only(
-                                                            topRight: Radius.circular(mqh*0.01),
-                                                        )
-                                                      ),
-                                                      alignment: Alignment.center,
-                                                      child: RotatedBox(
-                                                        quarterTurns: 3,
-                                                        child: Text(
-                                                          "Urgent",
-                                                          textAlign: TextAlign.center,
-                                                          style:TextStyle(
-                                                            fontSize: mqw*0.06,
-                                                            letterSpacing: 1.2,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black,
-                                                          )
                                                         ),
                                                       ),
-                                                    )
-                                                  ],
+                                                      if(appoints[index].isAppointUrgent)
+                                                      Container(  
+                                                        padding: EdgeInsets.all(mqw*0.02),
+                                                        width:mqw*0.154,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.yellow[400],
+                                                          borderRadius: BorderRadius.only(
+                                                              topRight: Radius.circular(mqh*0.01),
+                                                          )
+                                                        ),
+                                                        alignment: Alignment.center,
+                                                        child: RotatedBox(
+                                                          quarterTurns: 3,
+                                                          child: Text(
+                                                            "Urgent",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.06,
+                                                              letterSpacing: 1.2,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black,
+                                                            )
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
                                                 if(appoints[index].status==2)
                                                 Row(
                                                   children: [
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                          context: context, 
-                                                          builder: (BuildContext context)=>
-                                                            BackdropFilter(
-                                                              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                                                              child: AlertDialog(
-
-                                                                backgroundColor: Colors.red[300],
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(mqh*0.025),
-                                                                ),
-                                                                title: Text(
-                                                                  "Are you sure to reject this appointment request?",
-                                                                  style: TextStyle(
-                                                                    fontSize: mqh*0.023,
-                                                                    color:Colors.black,
+                                                    Expanded(
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                            context: context, 
+                                                            builder: (BuildContext context)=>
+                                                              BackdropFilter(
+                                                                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                                                                child: AlertDialog(
+                                                    
+                                                                  backgroundColor: Colors.red[300],
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(mqh*0.025),
                                                                   ),
-                                                                  textAlign: TextAlign.center,
+                                                                  title: Text(
+                                                                    "Are you sure to reject this appointment request?",
+                                                                    style: TextStyle(
+                                                                      fontSize: mqh*0.023,
+                                                                      color:Colors.black,
+                                                                    ),
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                  contentPadding: EdgeInsets.zero,
+                                                                  actions: [
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                      children: [
+                                                                        TextButton(
+                                                                          onPressed: (){
+                                                                            Navigator.of(context).pop();
+                                                                            setState(() {
+                                                                              appoints[index].status = 1;
+                                                                            });
+                                                                          },
+                                                                          child: Text(
+                                                                            "Yes",
+                                                                            style: TextStyle(
+                                                                              fontSize:mqh*0.022
+                                                                            ),
+                                                                          )
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed: (){
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child: Text(
+                                                                            "No",
+                                                                            style: TextStyle(
+                                                                              fontSize:mqh*0.022
+                                                                            ),
+                                                                          )
+                                                                        )
+                                                                      ],
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                                contentPadding: EdgeInsets.zero,
-                                                                actions: [
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                                    children: [
-                                                                      TextButton(
-                                                                        onPressed: (){
-                                                                          Navigator.of(context).pop();
-                                                                          setState(() {
-                                                                            appoints[index].status = 1;
-                                                                          });
-                                                                        },
-                                                                        child: Text(
-                                                                          "Yes",
-                                                                          style: TextStyle(
-                                                                            fontSize:mqh*0.022
-                                                                          ),
-                                                                        )
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed: (){
-                                                                          Navigator.of(context).pop();
-                                                                        },
-                                                                        child: Text(
-                                                                          "No",
-                                                                          style: TextStyle(
-                                                                            fontSize:mqh*0.022
-                                                                          ),
-                                                                        )
-                                                                      )
-                                                                    ],
-                                                                  )
-                                                                ],
                                                               ),
-                                                            ),
-                                                        );
-                                                      },
-                                                      child: Container(      
-                                                        padding: EdgeInsets.all(mqw*0.02),
-                                                        width:mqw*0.3595,
-                                                        height: mqh*0.064757,
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.red[400],
-                                                          borderRadius: BorderRadius.only(
-                                                            bottomLeft: Radius.circular(mqh*0.01),
-                                                          )
-                                                        ),
-                                                        alignment: Alignment.center,
-                                                        child: Text(
-                                                          "Reject",
-                                                          textAlign: TextAlign.center,
-                                                          style:TextStyle(
-                                                            fontSize: mqw*0.04,
-                                                            letterSpacing: 1.2,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black,
-                                                          )
+                                                          );
+                                                        },
+                                                        child: Container(      
+                                                          padding: EdgeInsets.all(mqw*0.02),
+                                                          height: mqh*0.064757,
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.red[400],
+                                                            borderRadius: BorderRadius.only(
+                                                              bottomLeft: Radius.circular(mqh*0.01),
+                                                            )
+                                                          ),
+                                                          alignment: Alignment.center,
+                                                          child: Text(
+                                                            "Reject",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              letterSpacing: 1.2,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black,
+                                                            )
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                          context: context, 
-                                                          builder: (BuildContext context)=>
-                                                            BackdropFilter(
-                                                              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                                                              child: AlertDialog(
-                                                                backgroundColor: Colors.green[300],
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(mqh*0.025),
-                                                                ),
-                                                                title: Text(
-                                                                  "Are you sure to approve this appointment request?",
-                                                                  style: TextStyle(
-                                                                    fontSize: mqh*0.023,
-                                                                    color:Colors.black,
+                                                    Expanded(
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                            context: context, 
+                                                            builder: (BuildContext context)=>
+                                                              BackdropFilter(
+                                                                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                                                                child: AlertDialog(
+                                                                  backgroundColor: Colors.green[300],
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(mqh*0.025),
                                                                   ),
-                                                                  textAlign: TextAlign.center,
+                                                                  title: Text(
+                                                                    "Are you sure to approve this appointment request?",
+                                                                    style: TextStyle(
+                                                                      fontSize: mqh*0.023,
+                                                                      color:Colors.black,
+                                                                    ),
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                  contentPadding: EdgeInsets.zero,
+                                                                  actions: [
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                      children: [
+                                                                        TextButton(
+                                                                          onPressed: (){
+                                                                            Navigator.of(context).pop();
+                                                                            setState(() {
+                                                                              appoints[index].status = 0;
+                                                                            });
+                                                                          },
+                                                                          child: Text(
+                                                                            "Yes",
+                                                                            style: TextStyle(
+                                                                              fontSize:mqh*0.022
+                                                                            ),
+                                                                          )
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed: (){
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child: Text(
+                                                                            "No",
+                                                                            style: TextStyle(
+                                                                              fontSize:mqh*0.022
+                                                                            ),
+                                                                          )
+                                                                        )
+                                                                      ],
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                                contentPadding: EdgeInsets.zero,
-                                                                actions: [
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                                    children: [
-                                                                      TextButton(
-                                                                        onPressed: (){
-                                                                          Navigator.of(context).pop();
-                                                                          setState(() {
-                                                                            appoints[index].status = 0;
-                                                                          });
-                                                                        },
-                                                                        child: Text(
-                                                                          "Yes",
-                                                                          style: TextStyle(
-                                                                            fontSize:mqh*0.022
-                                                                          ),
-                                                                        )
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed: (){
-                                                                          Navigator.of(context).pop();
-                                                                        },
-                                                                        child: Text(
-                                                                          "No",
-                                                                          style: TextStyle(
-                                                                            fontSize:mqh*0.022
-                                                                          ),
-                                                                        )
-                                                                      )
-                                                                    ],
-                                                                  )
-                                                                ],
                                                               ),
-                                                            ),
-                                                        );
-                                                      },
-                                                      child: Container(  
-                                                        padding: EdgeInsets.all(mqw*0.02),
-                                                        width:mqw*0.3595,
-                                                        height: mqh*0.064757,
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.green[400],
-                                                          borderRadius: BorderRadius.only(
-                                                              bottomRight: Radius.circular(mqh*0.01),
-                                                          )
-                                                        ),
-                                                        alignment: Alignment.center,
-                                                        child: Text(
-                                                          "Approve",
-                                                          textAlign: TextAlign.center,
-                                                          style:TextStyle(
-                                                            fontSize: mqw*0.04,
-                                                            letterSpacing: 1.2,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black,
-                                                          )
+                                                          );
+                                                        },
+                                                        child: Container(  
+                                                          padding: EdgeInsets.all(mqw*0.02),
+                                                          height: mqh*0.064757,
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.green[400],
+                                                            borderRadius: BorderRadius.only(
+                                                                bottomRight: Radius.circular(mqh*0.01),
+                                                            )
+                                                          ),
+                                                          alignment: Alignment.center,
+                                                          child: Text(
+                                                            "Approve",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              letterSpacing: 1.2,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black,
+                                                            )
+                                                          ),
                                                         ),
                                                       ),
                                                     )
@@ -423,27 +426,28 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                 if(appoints[index].status!=2)
                                                 Row(
                                                   children: [
-                                                    Container(      
-                                                      padding: EdgeInsets.all(mqw*0.02),
-                                                      width:mqw*0.719,
-                                                      height: mqh*0.064757,
-                                                      decoration: BoxDecoration(
-                                                        color: (appoints[index].status==1)?Colors.red[400]:Colors.green[400],
-                                                        borderRadius: BorderRadius.only(
-                                                          bottomLeft: Radius.circular(mqh*0.01),
-                                                          bottomRight: Radius.circular(mqh*0.01),
-                                                        )
-                                                      ),
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        (appoints[index].status==1)?"Rejected":"Approved",
-                                                        textAlign: TextAlign.center,
-                                                        style:TextStyle(
-                                                          fontSize: mqw*0.04,
-                                                          letterSpacing: 1.2,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Colors.black,
-                                                        )
+                                                    Expanded(
+                                                      child: Container(      
+                                                        padding: EdgeInsets.all(mqw*0.02),
+                                                        height: mqh*0.064757,
+                                                        decoration: BoxDecoration(
+                                                          color: (appoints[index].status==1)?Colors.red[400]:Colors.green[400],
+                                                          borderRadius: BorderRadius.only(
+                                                            bottomLeft: Radius.circular(mqh*0.01),
+                                                            bottomRight: Radius.circular(mqh*0.01),
+                                                          )
+                                                        ),
+                                                        alignment: Alignment.center,
+                                                        child: Text(
+                                                          (appoints[index].status==1)?"Rejected":"Approved",
+                                                          textAlign: TextAlign.center,
+                                                          style:TextStyle(
+                                                            fontSize: mqw*0.04,
+                                                            letterSpacing: 1.2,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black,
+                                                          )
+                                                        ),
                                                       ),
                                                     ),
                                                   ]
