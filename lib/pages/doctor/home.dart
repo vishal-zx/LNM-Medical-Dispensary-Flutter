@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/give_treatment.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/profile.dart';
+import 'package:lnm_medical_dispensary/pages/doctor/update_schedule.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_appointments.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_feedbacks.dart';
 import 'package:lnm_medical_dispensary/pages/doctor/view_medical_cert_request.dart';
@@ -142,6 +143,7 @@ class _DoctorHomeState extends State<DoctorHome> {
       {'View Appointments': const ViewAppointsRequests()},
       {'View Patient History': const ViewPatHis()},
       {'View Medical\nCertificates Requests': const MedCertReqs()},
+      {'Update Schedule': const UpdateSchedule()},
       {'Update Profile': const DoctorProfile()},
       {'View Feedbacks': const ViewFeedbacks()},
       {'Logout': logout(context, mqh, mqw)},

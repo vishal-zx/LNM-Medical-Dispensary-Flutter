@@ -35,8 +35,32 @@ class _BookAppointmentState extends State<BookAppointment> {
 
   // ignore: prefer_typing_uninitialized_variables
   var times;
-
   bool _check1 = false; 
+
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
+  }
 
   List<DropdownMenuItem<String>> dropDownDocs = [];
 
@@ -73,7 +97,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     super.initState();
     Future.delayed(const Duration(seconds:0), () {
         times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
-    }).whenComplete(() => setState((){}));
+    });
   }
 
   @override
@@ -177,7 +201,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                                       searchHint: null,
                                       onChanged: (value) {
                                         setState(() {
-                                          selectedValue = value;
+                                          selectedValue = (value==null)?"":value;
                                           Future.delayed(const Duration(seconds:0), () {
                                               times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
                                           }).whenComplete(() => setState((){}));
@@ -373,9 +397,24 @@ class _BookAppointmentState extends State<BookAppointment> {
                                         borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
                                           onTap: () {
-                                            setState((){
-                                              _check1 = !_check1;
-                                            });
+                                            if(!_check1){
+                                              if(selectedValue!=""){
+                                                if(reason!=""){
+                                                  if(selectedTimeSlot!=-1){
+                                                    setState((){
+                                                      _check1 = !_check1;
+                                                      
+                                                    });
+                                                  }else{
+                                                    ScaffoldMessenger.of(context).showSnackBar(snackBar('Please select a date-time slot!'));
+                                                  }
+                                                }else{
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar('Please enter a reason!'));
+                                                }
+                                              }else{
+                                                ScaffoldMessenger.of(context).showSnackBar(snackBar('Please select a doctor!'));
+                                              }
+                                            }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
