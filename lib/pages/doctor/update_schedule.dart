@@ -167,7 +167,7 @@ class _UpdateScheduleState extends State<UpdateSchedule> {
                                       height:mqw*0.1,
                                       width:mqw*0.1,
                                       child: CircularProgressIndicator(
-                                        color: Colors.amber.shade800,
+                                        color: Colors.cyan.shade800,
                                       ),
                                     ),
                                     SizedBox(
