@@ -1,5 +1,7 @@
 import 'dart:core';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
@@ -13,6 +15,11 @@ class BookAppointment extends StatefulWidget {
 
 class _BookAppointmentState extends State<BookAppointment> {
   final formKey = GlobalKey<FormState>();
+  final step = const Duration(minutes: 30);
+  bool gettingSlots = false;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  List<String> days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  List<TimeOfDay> schedules = [];
 
   Iterable<TimeOfDay> getTimes(TimeOfDay startTime, TimeOfDay endTime, Duration step) sync* {
     var hour = startTime.hour;
@@ -28,13 +35,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     } while (hour < endTime.hour ||
             (hour == endTime.hour && minute <= endTime.minute));
   }
-
-  final startTime = const TimeOfDay(hour: 9, minute: 0);
-  final endTime = const TimeOfDay(hour: 17, minute: 0);
-  final step = const Duration(minutes: 30);
-
-  // ignore: prefer_typing_uninitialized_variables
-  var times;
+  var times = [];
   bool _check1 = false; 
 
   SnackBar snackBar(String text){
@@ -78,8 +79,35 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
   
-  String selectedValue = "";
-  num selectedTimeSlot = -1;
+  Future<void> getSlots(int day, String doc)async{
+    setState(() {
+      gettingSlots = true;
+    });
+    times.clear();
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo: doc).get();
+    var doctors = qs.docs;
+    Map<String, dynamic> data = doctors[0].data() as Map<String, dynamic>;
+    var scFromFB = data['Schedule']![days[day-1]] as Map<String, dynamic>;
+    scFromFB.forEach((key, value) {
+      String st = value[0] as String;
+      String et = value[1] as String;
+      if(st.length == 5 && et.length == 5) {
+        var todst = TimeOfDay(hour: int.parse(st.substring(0,2)), minute: int.parse(st.substring(3)));
+        var todet = TimeOfDay(hour: int.parse(et.substring(0,2)), minute: int.parse(et.substring(3)));
+        Future.delayed(const Duration(seconds: 0),(){
+          times += getTimes(todst, todet, step).map((tod) => tod.format(context)).toList();
+        }).whenComplete(() => setState((){}));
+        setState(() {
+        });
+      }
+    });
+    setState(() {
+      gettingSlots = false;
+    });
+  }
+
+  String selectedDoc = "";
+  int selectedTimeSlot = -1;
   String reason = "";
   bool isAppointUrgent = false;
   bool dataLoaded = false;
@@ -95,9 +123,6 @@ class _BookAppointmentState extends State<BookAppointment> {
       });
     }
     super.initState();
-    Future.delayed(const Duration(seconds:0), () {
-        times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
-    });
   }
 
   @override
@@ -196,16 +221,29 @@ class _BookAppointmentState extends State<BookAppointment> {
                                     ),
                                     SearchChoices.single(
                                       items: dropDownDocs,
-                                      value: selectedValue,
+                                      value: selectedDoc,
                                       hint: "Select one",
                                       searchHint: null,
                                       onChanged: (value) {
                                         setState(() {
-                                          selectedValue = (value==null)?"":value;
-                                          Future.delayed(const Duration(seconds:0), () {
-                                              times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
-                                          }).whenComplete(() => setState((){}));
+                                          selectedDoc = (value==null)?"":value;
                                           selectedTimeSlot = -1;
+                                          selectedDate = DateTime.now();
+                                          getSlots(selectedDate.weekday, selectedDoc).then((value) => {
+                                            selectedTimeSlot = -1,
+                                          });
+                                          reason="";
+                                          isAppointUrgent = false;
+                                          selectedTimeSlot = -1;
+                                        });
+                                      },
+                                      onClear: (){
+                                        setState(() {
+                                          selectedTimeSlot = -1;
+                                          selectedDoc = "";
+                                          selectedDate = DateTime.now();
+                                          reason="";
+                                          isAppointUrgent = false;
                                         });
                                       },
                                       style:TextStyle(
@@ -220,112 +258,141 @@ class _BookAppointmentState extends State<BookAppointment> {
                                     SizedBox(
                                       height:mqh*0.04
                                     ),
+                                    (selectedDoc=='')?
                                     Text(
-                                      "Preferred Date & Time",
+                                      'First select a doctor, for time slots.',
                                       style:TextStyle(
-                                        fontSize: mqh*0.035,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    TextFormField(
-                                      decoration: InputDecoration(
-                                        hintText: DateFormat("dd MMMM yyyy").format(selectedDate),
-                                        suffix: InkWell(
-                                          onTap: () {
-                                            showDatePicker(
-                                              context: context,
-                                              builder: (context, child) {
-                                                return Theme(
-                                                  data: Theme.of(context).copyWith(
-                                                    colorScheme: ColorScheme.light(
-                                                      primary: Colors.amber.shade300,
-                                                      onPrimary: Colors.black,
-                                                      onSurface: Colors.black,
+                                        fontSize: mqh*0.025,
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Avenir'
+                                      ),
+                                    ):
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Preferred Date & Time",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.035,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                            hintText: DateFormat("dd MMMM yyyy").format(selectedDate),
+                                            suffix: InkWell(
+                                              onTap: () {
+                                                showDatePicker(
+                                                  context: context,
+                                                  builder: (context, child) {
+                                                    return Theme(
+                                                      data: Theme.of(context).copyWith(
+                                                        colorScheme: ColorScheme.light(
+                                                          primary: Colors.amber.shade300,
+                                                          onPrimary: Colors.black,
+                                                          onSurface: Colors.black,
+                                                        ),
+                                                      ),
+                                                      child: child!,
+                                                    );
+                                                  },
+                                                  helpText: 'Select Date for Appointment',
+                                                  initialDate: selectedDate,
+                                                  firstDate: DateTime.now(),
+                                                  lastDate: DateTime.now().add(const Duration(days: 14)),
+                                                ).then((pickedDate)async {
+                                                  if (pickedDate == null) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    selectedDate = pickedDate;
+                                                    getSlots(selectedDate.weekday, selectedDoc).then((value) => {
+                                                      selectedTimeSlot = -1,
+                                                    });
+                                                  });
+                                                });
+                                              },
+                                              child: Icon(
+                                                Icons.date_range,
+                                                size: mqh*0.033,
+                                              ),
+                                            ),
+                                          ),
+                                          readOnly: true,
+                                          style:TextStyle(
+                                            fontSize: mqh*0.023,
+                                            color: Colors.black,
+                                          ),
+                                          controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedDate) + " " + ((times.isEmpty || selectedTimeSlot==-1)?'':times[selectedTimeSlot]),
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.01
+                                        ),
+                                        Container(
+                                          height: (times.length/4 > 2)?
+                                          mqh*0.15: (mqh*0.024 + mqw*0.075)*max(1,(times.length/4+(times.length%4 == 0?0:1))),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(mqh*0.01)
+                                          ),
+                                          // mqh*0.042 + mqw*0.15
+                                          alignment: Alignment.center,
+                                          child: (gettingSlots)?Center(
+                                              child: SizedBox(
+                                                height:mqw*0.05,
+                                                width:mqw*0.05,
+                                                child: const CircularProgressIndicator(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ):(times.isEmpty)?Center(
+                                              child: Text(
+                                                'No available slots.\nPlease choose another date.',
+                                                style:TextStyle(
+                                                  fontSize: mqh*0.018,
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ):GridView.builder(
+                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 4,
+                                              childAspectRatio: 1.5,
+                                            ),
+                                            physics: const BouncingScrollPhysics(),
+                                            itemCount: (times.isEmpty)?1:times.length,
+                                            itemBuilder: (context, index) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  setState((){
+                                                    selectedTimeSlot = index;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  margin: EdgeInsets.all(mqh*0.007),
+                                                  decoration: BoxDecoration(
+                                                    color: (selectedTimeSlot==index)?Colors.blueGrey[600]:Colors.blueGrey[100],
+                                                    borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      times[index],
+                                                      style:TextStyle(
+                                                        fontSize: mqh*0.015,
+                                                        color: (selectedTimeSlot==index)?Colors.white:Colors.black,
+                                                      )
                                                     ),
                                                   ),
-                                                  child: child!,
-                                                );
-                                              },
-                                              helpText: 'Select Date for Appointment',
-                                              initialDate: selectedDate,
-                                              firstDate: DateTime.now(),
-                                              lastDate: DateTime.now().add(const Duration(days: 14)),
-                                            ).then((pickedDate) {
-                                              if (pickedDate == null) {
-                                                return;
-                                              }
-                                              setState(() {
-                                                selectedDate = pickedDate;
-                                                Future.delayed(const Duration(seconds:0), () {
-                                                    times = getTimes(startTime, endTime, step).map((tod) => tod.format(context)).toList();
-                                                }).whenComplete(() => setState((){}));
-                                                selectedTimeSlot = -1;
-                                              });
-                                            });
-                                          },
-                                          child: Icon(
-                                            Icons.date_range,
-                                            size: mqh*0.033,
-                                          ),
-                                        ),
-                                      ),
-                                      readOnly: true,
-                                      style:TextStyle(
-                                        fontSize: mqh*0.023,
-                                        color: Colors.black,
-                                      ),
-                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedDate) + " " + ((times==null || selectedTimeSlot==-1)?'':times[selectedTimeSlot]),
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.01
-                                    ),
-                                    Container(
-                                      height: mqh*0.15,
-                                      alignment: Alignment.center,
-                                      child: GridView.builder(
-                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 4,
-                                          childAspectRatio: 1.5,
-                                        ),
-                                        physics: const BouncingScrollPhysics(),
-                                        itemCount: (times==null)?1:times.length,
-                                        itemBuilder: (context, index) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              setState((){
-                                                selectedTimeSlot = index;
-                                              });
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.all(mqh*0.007),
-                                              decoration: BoxDecoration(
-                                                color: (selectedTimeSlot==index)?Colors.blueGrey[600]:Colors.blueGrey[100],
-                                                borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
-                                              ),
-                                              child: Center(child: (times==null)?
-                                              Center(
-                                                child: SizedBox(
-                                                  height:mqw*0.05,
-                                                  width:mqw*0.05,
-                                                  child: const CircularProgressIndicator(
-                                                    color: Colors.red,
-                                                  ),
                                                 ),
-                                              ):
-                                              Text(
-                                                times[index],
-                                                style:TextStyle(
-                                                  fontSize: mqh*0.015,
-                                                  color: (selectedTimeSlot==index)?Colors.white:Colors.black,
-                                                )
-                                              )),
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.04
+                                              );
+                                            },
+                                          )
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.03
+                                        ),
+                                      ],
                                     ),
                                     Text(
                                       "Reason",
@@ -396,14 +463,22 @@ class _BookAppointmentState extends State<BookAppointment> {
                                         color: (_check1 == true)?Colors.orange[300]:Colors.orange,
                                         borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
-                                          onTap: () {
+                                          onTap: () async{
                                             if(!_check1){
-                                              if(selectedValue!=""){
+                                              if(selectedDoc!=""){
                                                 if(reason!=""){
                                                   if(selectedTimeSlot!=-1){
                                                     setState((){
                                                       _check1 = !_check1;
-                                                      
+                                                    });
+                                                    await FirebaseFirestore.instance.collection('appointment').doc(username).collection(selectedDoc).doc().set({ 
+                                                      'Reason': reason,
+                                                      'Timing': DateFormat('dd-MM-yyyy ').format(selectedDate)+times[selectedTimeSlot],
+                                                      'isUrgent': isAppointUrgent,
+                                                      'isApproved': false
+                                                    }).whenComplete(() {
+                                                      Navigator.of(context).pop();
+                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar('Appointment created successfully!'));
                                                     });
                                                   }else{
                                                     ScaffoldMessenger.of(context).showSnackBar(snackBar('Please select a date-time slot!'));
