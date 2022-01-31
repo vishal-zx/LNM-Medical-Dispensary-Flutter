@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 
@@ -19,26 +21,27 @@ class Feedback{
 
 class _ViewFeedbacksState extends State<ViewFeedbacks> {
   final formKey = GlobalKey<FormState>();
-  List<bool> stars = [];
-
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  bool load = false;
   List<Feedback> feedback = [
-      Feedback('Vishal Gupta', 'fever fever fever fever fever fever in order to open APK files, your application needs', 5),
-      Feedback('Chand Singh', 'fever', 4),
-      Feedback('Amit Malhotra', 'fever', 2),
-      Feedback('Nidhi Bisht', 'fever', 3),
-      Feedback('Vishal Gupta', 'fever', 1),
-      Feedback('Chand Singh', 'fever', 3),
-      Feedback('Amit Malhotra', 'fever in order to open APK files, your application needs', 5),
-      Feedback('Nidhi Bisht', 'fever', 2),
-      Feedback('Vishal Gupta', 'fever', 3),
-      Feedback('Chand Singh', 'fever', 3),
-      Feedback('Amit Malhotra', 'fever', 1),
-      Feedback('Nidhi Bisht', 'fever', 1),
-      Feedback('Vishal Gupta', 'fever', 4),
   ];
+
+  Future<void> getFeedbacks()async{
+    feedback.clear();
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('feedback').doc(username).get();
+    var data = snapshot.data() as Map<String, dynamic>;
+    for(var fb in data['feedbacks']!){
+      var db = fb as Map<String, dynamic>;
+      feedback.add(Feedback(db['Patient']!, db['Feedback']!, db['Rating']!));
+    }
+    setState(() {});
+  }
 
   @override
   void initState(){
+    if(feedback.isEmpty){
+      getFeedbacks().whenComplete(() => setState((){load = true;}));
+    }
     super.initState();
   }
 
@@ -94,7 +97,33 @@ class _ViewFeedbacksState extends State<ViewFeedbacks> {
                           child: SizedBox(
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!load)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.cyan.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -117,7 +146,6 @@ class _ViewFeedbacksState extends State<ViewFeedbacks> {
                                               children: [
                                                 Container(      
                                                   padding: EdgeInsets.all(mqw*0.03),
-                                                  height: mqh*0.175,
                                                   decoration: BoxDecoration(
                                                     borderRadius: BorderRadius.only(
                                                       topLeft: Radius.circular(mqh*0.01),
@@ -154,6 +182,45 @@ class _ViewFeedbacksState extends State<ViewFeedbacks> {
                                                           ),
                                                         ],
                                                       ),
+                                                      SizedBox(
+                                                        height:mqh*0.01
+                                                      ),
+                                                      Row(
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Text(
+                                                            "Rated:",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              const Text(" "),
+                                                              for(var i=0;i<feedback[index].star;i++)
+                                                              const Icon(Icons.star, color: Colors.black, size: 18),
+                                                              for(var i=feedback[index].star;i<5;i++)
+                                                              Icon(Icons.star_border, color: Colors.black.withAlpha(200), size: 18),
+                                                            ],
+                                                          ),
+                                                          Text(
+                                                            "   (${feedback[index].star}/5)",
+                                                            textAlign: TextAlign.center,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.033,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        height:mqh*0.01
+                                                      ),
                                                       Row(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
@@ -181,29 +248,6 @@ class _ViewFeedbacksState extends State<ViewFeedbacks> {
                                                                 color: Colors.black87,
                                                               )
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            "Rating:",
-                                                            textAlign: TextAlign.center,
-                                                            style:TextStyle(
-                                                              fontSize: mqw*0.04,
-                                                              fontWeight: FontWeight.bold,
-                                                              color: Colors.black87,
-                                                            )
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              const Text(" "),
-                                                              for(var i=0;i<feedback[index].star;i++)
-                                                              const Icon(Icons.star, color: Colors.black),
-                                                              for(var i=feedback[index].star;i<5;i++)
-                                                              Icon(Icons.star_border, color: Colors.black.withAlpha(200)),
-                                                            ],
                                                           ),
                                                         ],
                                                       ),
