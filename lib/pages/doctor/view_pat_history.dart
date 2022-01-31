@@ -1,7 +1,7 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:search_choices/search_choices.dart';
 
@@ -32,18 +32,6 @@ class PMedRec extends StatelessWidget {
           iconTheme: const IconThemeData(
             color: Colors.black,
           ),
-          title:Container(
-            alignment:Alignment.centerRight,
-            child: Text(
-              "Medical Record",
-              style:TextStyle(
-                fontSize: mqh*0.044,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              )
-            ),
-          ),
-          // automaticallyImplyLeading: false,
         ),
         backgroundColor: Colors.cyan[300],
         body: SafeArea(
@@ -57,6 +45,18 @@ class PMedRec extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  Container(
+                    alignment:Alignment.centerLeft,
+                    padding: EdgeInsets.only(left:mqw*0.09),
+                    child: Text(
+                      "Medical Record",
+                      style:TextStyle(
+                        fontSize: mqh*0.045,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      )
+                    ),
+                  ),
                   Container(
                     alignment: Alignment.bottomRight,
                     child: Stack(
@@ -138,7 +138,7 @@ class PMedRec extends StatelessWidget {
                                           )
                                         ),
                                         Text(
-                                          patHis.dateTime.substring(0,8)+", "+patHis.dateTime.substring(9),
+                                          patHis.dateTime.substring(0,10)+", "+patHis.dateTime.substring(11),
                                           textAlign: TextAlign.center,
                                           style:TextStyle(
                                             fontSize: mqw*0.05,
@@ -308,37 +308,58 @@ class ViewPatHis extends StatefulWidget {
 
 class _ViewPatHisState extends State<ViewPatHis> {
   final formKey = GlobalKey<FormState>();
+  
+  String selectedPatValue = "";
+  bool isPatientSelected = false;
+  bool dataLoadedPat = false;
+  bool hisLoaded = false;
+  List<DropdownMenuItem<String>> dropDownPats = [];
+  List<PatHistory> patHis = [];
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  Future<void> getPatients() async{
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('appointment').get();
+    var patUsernames = qs.docs;
+    for(var pat in patUsernames){
+      QuerySnapshot q = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: pat.id).get();
+      Map<String, dynamic> data = q.docs.first.data() as Map<String, dynamic>;
+      String fName = data['FirstName'];
+      String lName = data['LastName'];
+      dropDownPats.add(DropdownMenuItem(
+        child: Text("$fName $lName"),
+        value: pat.id,
+      ));
+    }
   }
   
-  String selectedValue = "";
-  bool isPatientSelected = false;
+  Future<void> getPatHis(String pat) async{
+    patHis.clear();
+    DocumentSnapshot qs = await FirebaseFirestore.instance.collection('patientHistory').doc(pat).get();
+    var history = qs.data() as Map<String, dynamic>;
+    history.forEach((key, value) async{
+      QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: pat).get();
+      String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+      QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:key).get();
+      String dName = qsD.docs[0]['FirstName']!+" "+qsD.docs[0]['LastName']!;
+      for(var i in value){
+        var his = i as Map<String, dynamic>;
+        patHis.add(
+          PatHistory(dName, pName, his['Timing']!, his['Reason']!, his['Prescription']!, his['OtherIns']!, his['Refer']!)
+        );
+        setState(() {});
+      }
+    });
+  }
 
-  List<PatHistory> patHis = [
-      PatHistory('Ajay Nair', 'Gunit Varshney', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever fever fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', 'Saumitra Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', 'Ketan Jakhar', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Aabha Gupta', 'Mayank Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Ajay Nair', 'Gunit Varshney', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', 'Saumitra Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', 'Ketan Jakhar', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Aabha Gupta', 'Mayank Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Ajay Nair', 'Gunit Varshney', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', 'Saumitra Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', 'Ketan Jakhar', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Aabha Gupta', 'Mayank Vyas', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-  ];
 
   @override
   void initState(){
+    if(dropDownPats.isEmpty){
+      getPatients().then((value){
+        setState(() {
+          dataLoadedPat = true;
+        });
+      });
+    }
     super.initState();
   }
 
@@ -392,7 +413,33 @@ class _ViewPatHisState extends State<ViewPatHis> {
                             padding: EdgeInsets.only(right:mqw*0.05),
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!dataLoadedPat)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.cyan.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -402,42 +449,78 @@ class _ViewPatHisState extends State<ViewPatHis> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Select Patient",
+                                          "Patient",
                                           style:TextStyle(
                                             fontSize: mqh*0.035,
                                             color: Colors.black87,
-                                          ),
-                                          textAlign: TextAlign.left,
+                                          )
                                         ),
                                         SearchChoices.single(
-                                          items: dropdownItems,
-                                          value: selectedValue,
-                                          hint: "Select one",
-                                          searchHint: null,
-                                          onChanged: (value) {
+                                          items: dropDownPats,
+                                          searchInputDecoration: const InputDecoration(
+                                            labelText: "Search by typing email..."
+                                          ),
+                                          value: selectedPatValue,
+                                          onClear: (){
                                             setState(() {
-                                              selectedValue = value;
-                                              isPatientSelected = true;
+                                              selectedPatValue = "";
+                                              hisLoaded = false;
                                             });
                                           },
                                           style:TextStyle(
-                                            fontSize: mqh*0.025,
+                                            fontSize: mqh*0.022,
                                             color: Colors.black,
                                             fontFamily: 'Avenir'
                                           ),
-                                          menuBackgroundColor: Colors.cyanAccent[100],
-                                          dialogBox: true,
-                                          isExpanded: true,
-                                          onClear: (){
-                                            setState(() { 
-                                              isPatientSelected = false;
+                                          hint: "Select one",
+                                          searchHint: null,
+                                          onChanged: (value) async{
+                                            setState(() {
+                                              selectedPatValue = value;
+                                              isPatientSelected = true;
+                                              getPatHis(selectedPatValue).whenComplete(() => {
+                                                setState(() {
+                                                  Future.delayed(const Duration(milliseconds: 500),(){
+                                                    hisLoaded = true;
+                                                  });
+                                                })
+                                              });
                                             });
                                           },
+                                          menuBackgroundColor: Colors.cyan[100],
+                                          dialogBox: true,
+                                          isExpanded: true,
                                         ),
                                       ],
                                     ),
                                   ),
                                   if(isPatientSelected)
+                                  (!hisLoaded)?Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height:mqw*0.1,
+                                          width:mqw*0.1,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.cyan.shade800,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.035,
+                                        ),
+                                        Text(
+                                          "Loading Patient History ...",
+                                          textAlign: TextAlign.center,
+                                          style:TextStyle(
+                                            fontSize: mqh*0.02,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ):
                                   Container(
                                     padding: EdgeInsets.only(left:mqw*0.07, right:mqw*0.02),
                                     width: mqw*0.84,
@@ -473,35 +556,6 @@ class _ViewPatHisState extends State<ViewPatHis> {
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          "Patient:",
-                                                          textAlign: TextAlign.center,
-                                                          style:TextStyle(
-                                                            fontSize: mqw*0.04,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black87,
-                                                          )
-                                                        ),
-                                                        Flexible(
-                                                          child: Text(
-                                                            " "+ patHis[index].patient,
-                                                            textAlign: TextAlign.left,
-                                                            overflow: TextOverflow.ellipsis,
-                                                            softWrap:false,
-                                                            maxLines: 1,
-                                                            style:TextStyle(
-                                                              fontSize: mqw*0.04,
-                                                              color: Colors.black87,
-                                                            )
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      height:mqh*0.01
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
                                                           "Doctor:",
                                                           textAlign: TextAlign.center,
                                                           style:TextStyle(
@@ -512,7 +566,7 @@ class _ViewPatHisState extends State<ViewPatHis> {
                                                         ),
                                                         Flexible(
                                                           child: Text(
-                                                            " "+ patHis[index].doctor,
+                                                            " Dr. "+ patHis[index].doctor,
                                                             textAlign: TextAlign.left,
                                                             overflow: TextOverflow.ellipsis,
                                                             softWrap:false,
