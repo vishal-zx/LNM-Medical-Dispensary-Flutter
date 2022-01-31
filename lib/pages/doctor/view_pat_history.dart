@@ -1,22 +1,26 @@
 import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:search_choices/search_choices.dart';
+import '../../apis/medrecord_pdf_api.dart';
+import '../../apis/pdf_api.dart';
+import '../../models/med_record.dart';
 
 class PMedRec extends StatelessWidget {
-  const PMedRec({ Key? key, required this.patHis }) : super(key: key);
+  const PMedRec({ Key? key, required this.patHis, required this.patDetails}) : super(key: key);
 
   final PatHistory patHis;
+  final PatDetails patDetails;
 
-  void _requestDownload(String link) async {
-    await FlutterDownloader.enqueue(
-      url: link,
-      savedDir: '/storage/emulated/0/Download',
-      showNotification: true,
-      openFileFromNotification: false,
+  void buildMedRecord() async {
+    var medRec = MedRec(
+      patHis: patHis,
+      patDetails: patDetails,
     );
+
+    final pdfFile = await PdfMedRecordApi.generate(medRec);
+    PdfApi.openFile(pdfFile);
   }
 
   @override
@@ -244,7 +248,7 @@ class PMedRec extends StatelessWidget {
                                             borderRadius: BorderRadius.circular(mqw*0.03),
                                             child: InkWell(
                                               onTap: () {
-                                                _requestDownload('https://firebasestorage.googleapis.com/v0/b/lnmmeddis.appspot.com/o/Vishal%20Gupta.pdf?alt=media&token=8ad40c4d-567b-4f5b-be2c-12d73f0a31c1');
+                                                buildMedRecord();
                                               },
                                               child: AnimatedContainer(
                                                 duration: const Duration(seconds: 1),
@@ -252,7 +256,7 @@ class PMedRec extends StatelessWidget {
                                                 height: mqw*0.125,
                                                 alignment: Alignment.center,
                                                 child: Text(
-                                                  "Download Medical Record",
+                                                  "View Medical Record",
                                                   style: TextStyle(
                                                     color: Colors.black87, 
                                                     fontWeight: FontWeight.bold,
@@ -299,6 +303,16 @@ class PatHistory{
   PatHistory(this.doctor, this.patient, this.dateTime, this.reason, this.prescription , this.instruction, this.refer);
 }
 
+class PatDetails{
+  String name = "";
+  String email = "";
+  String age = "";
+  String mob = "";
+  String gender = "";
+
+  PatDetails(this.name, this.email, this.age, this.mob, this.gender);
+}
+
 class ViewPatHis extends StatefulWidget {
   const ViewPatHis({ Key? key }) : super(key: key);
 
@@ -315,6 +329,7 @@ class _ViewPatHisState extends State<ViewPatHis> {
   bool hisLoaded = false;
   List<DropdownMenuItem<String>> dropDownPats = [];
   List<PatHistory> patHis = [];
+  late PatDetails pd;
 
   Future<void> getPatients() async{
     QuerySnapshot qs = await FirebaseFirestore.instance.collection('appointment').get();
@@ -338,6 +353,7 @@ class _ViewPatHisState extends State<ViewPatHis> {
     history.forEach((key, value) async{
       QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: pat).get();
       String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+      pd = PatDetails(pName, qsP.docs[0]['Email'], qsP.docs[0]['Age'], qsP.docs[0]['Mob'], (qsP.docs[0]['isMale'])?"Male":"Female");
       QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:key).get();
       String dName = qsD.docs[0]['FirstName']!+" "+qsD.docs[0]['LastName']!;
       for(var i in value){
@@ -536,7 +552,7 @@ class _ViewPatHisState extends State<ViewPatHis> {
                                               PageTransition(
                                                 type: PageTransitionType.bottomToTop, 
                                                 duration: const Duration(milliseconds: 400),
-                                                child: PMedRec(patHis: patHis[index]),
+                                                child: PMedRec(patHis: patHis[index], patDetails: pd),
                                                 childCurrent: const ViewPatHis()
                                               )
                                             );
