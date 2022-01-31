@@ -94,7 +94,7 @@ class PMedRec extends StatelessWidget {
                                       children: [
                                         Text(
                                           "Patient",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           patHis.patient,
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.05,
                                             color: Colors.black87,
@@ -114,7 +114,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Doctor",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -123,7 +123,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Dr. "+patHis.doctor,
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.05,
                                             color: Colors.black87,
@@ -134,7 +134,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Timings",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           patHis.dateTime.substring(0,10)+", "+patHis.dateTime.substring(11),
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.05,
                                             color: Colors.black87,
@@ -163,7 +163,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           patHis.reason,
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.05,
                                             color: Colors.black87,
@@ -174,7 +174,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Prescription",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -197,7 +197,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Other Instructions",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -220,7 +220,7 @@ class PMedRec extends StatelessWidget {
                                         ),
                                         Text(
                                           "Refer to (if any)",
-                                          textAlign: TextAlign.center,
+                                          textAlign: TextAlign.left,
                                           style:TextStyle(
                                             fontSize: mqw*0.06,
                                             fontWeight: FontWeight.bold,
@@ -256,7 +256,7 @@ class PMedRec extends StatelessWidget {
                                                 height: mqw*0.125,
                                                 alignment: Alignment.center,
                                                 child: Text(
-                                                  "View Medical Record",
+                                                  "View Medical Record PDF",
                                                   style: TextStyle(
                                                     color: Colors.black87, 
                                                     fontWeight: FontWeight.bold,
@@ -481,6 +481,7 @@ class _ViewPatHisState extends State<ViewPatHis> {
                                             setState(() {
                                               selectedPatValue = "";
                                               hisLoaded = false;
+                                              isPatientSelected = false;
                                             });
                                           },
                                           style:TextStyle(

@@ -69,8 +69,8 @@ class _NewTreatmentState extends State<NewTreatment> {
       Map<String, dynamic> data = app.data() as Map<String, dynamic>;
       String timing = data['Timing'];
       String reason = data['Reason'];
-      bool isApproved = data['isApproved'];
-      if(isApproved){
+      int isApproved = data['isApproved'];
+      if(isApproved == 0){
         dropDownApps.add(DropdownMenuItem(
           child: Text(
             "Date: ${timing.substring(0,10)}   Time: ${timing.substring(11)}",
@@ -328,7 +328,7 @@ class _NewTreatmentState extends State<NewTreatment> {
                                               decoration: const InputDecoration(
                                                 hintText: "Enter prescription",
                                               ),
-                                              maxLength: 500,
+                                              maxLength: 200,
                                               minLines: 1,
                                               maxLines: 5,
                                               onChanged:(value){
@@ -352,7 +352,7 @@ class _NewTreatmentState extends State<NewTreatment> {
                                               decoration: const InputDecoration(
                                                 hintText: "Enter other instructions",
                                               ),
-                                              maxLength: 200,
+                                              maxLength: 100,
                                               minLines: 1,
                                               maxLines: 5,
                                               onChanged:(value){

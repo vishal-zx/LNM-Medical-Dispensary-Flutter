@@ -8,7 +8,6 @@ import '../pages/doctor/view_pat_history.dart';
 class PdfMedRecordApi {
   static Future<File> generate(MedRec medRec) async {
     final pdf = Document();
-
     pdf.addPage(MultiPage(
       build: (context) => [
         Column(
@@ -19,7 +18,7 @@ class PdfMedRecordApi {
             prescBody(medRec.patHis),
             
             pw.Container(
-              height: 85,
+              height: 130,
               child: footer(),
             )
 
@@ -28,7 +27,7 @@ class PdfMedRecordApi {
       ],
     ));
 
-    return PdfApi.saveDocument(name: 'Medical Record.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: 'Medical Record - ${medRec.patHis.patient}.pdf', pdf: pdf);
   }
 
   static Widget header() => Container(
@@ -76,11 +75,11 @@ class PdfMedRecordApi {
           "Medical Record",
           style: TextStyle(
             color: PdfColors.black,
-            fontSize: 30,
+            fontSize: 25,
             font: Font.timesBold(),
           )
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 15),
       ]
     )
   );
@@ -217,8 +216,7 @@ class PdfMedRecordApi {
   );
 
   static Widget prescBody(PatHistory ph) => Container(
-    height: 360,
-    width: double.maxFinite,
+    height: 330,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +233,7 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              ph.doctor,
+              "Dr. "+ph.doctor,
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -246,6 +244,7 @@ class PdfMedRecordApi {
         ),
         SizedBox(height: 10),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Reason (by Patient):",
@@ -327,14 +326,26 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              ph.prescription,
+              ph.prescription.substring(0, (ph.prescription.length>42)?42:ph.prescription.length),
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
                 font: Font.times(),
-              )
+              ),
             ), 
           ]
+        ),
+        if(ph.prescription.length>42)
+        Container(
+          child:
+            Text(
+              '-'+ph.prescription.substring(42),
+              style: TextStyle(
+                color: PdfColors.black,
+                fontSize: 20,
+                font: Font.times(),
+              ),
+            ), 
         ),
         SizedBox(height: 10),
         Row(
@@ -349,7 +360,7 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              ph.instruction,
+              ph.instruction.substring(0, (ph.instruction.length>38)?38:ph.instruction.length),
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -357,6 +368,18 @@ class PdfMedRecordApi {
               )
             ), 
           ]
+        ),
+        if(ph.instruction.length>38)
+        Container(
+          child:
+            Text(
+              '-'+ph.instruction.substring(38),
+              style: TextStyle(
+                color: PdfColors.black,
+                fontSize: 20,
+                font: Font.times(),
+              ),
+            ), 
         ),
         SizedBox(height: 10),
         Row(
@@ -371,7 +394,7 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              ph.refer,
+              ph.refer.substring(0, (ph.refer.length>38)?38:ph.refer.length),
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -379,6 +402,18 @@ class PdfMedRecordApi {
               )
             ), 
           ]
+        ),
+        if(ph.refer.length>38)
+        Container(
+          child:
+            Text(
+              '-'+ph.refer.substring(38),
+              style: TextStyle(
+                color: PdfColors.black,
+                fontSize: 20,
+                font: Font.times(),
+              ),
+            ), 
         ),
       ]
     )
@@ -390,8 +425,35 @@ class PdfMedRecordApi {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children:[
-        pw.Divider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Column(
+              children: [
+                Text(
+                  "-----------------------",
+                  style: TextStyle(
+                    color: PdfColors.black,
+                    fontSize: 20,
+                    font: Font.timesBold(),
+                  )
+                ), 
+                SizedBox(width: 10),
+                Text(
+                  "Doctor's Signature",
+                  style: TextStyle(
+                    color: PdfColors.black,
+                    fontSize: 20,
+                    font: Font.times(),
+                  )
+                ), 
+              ]
+            )
+          ]
+        ),
         SizedBox(height: 10),
+        pw.Divider(),
+        SizedBox(height: 5),
         Text(
           "Medical Unit - LNMIIT, Jaipur",
           style: TextStyle(
@@ -400,7 +462,6 @@ class PdfMedRecordApi {
             font: Font.timesBold(),
           )
         ),
-        SizedBox(height: 10),
         Text(
           "All rights reserved to LNMIIT.",
           style: TextStyle(
