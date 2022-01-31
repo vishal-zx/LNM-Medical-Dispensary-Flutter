@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
 
@@ -13,22 +15,65 @@ class _SubmitFeedbackState extends State<SubmitFeedback> {
   final formKey = GlobalKey<FormState>();
 
   bool _check1 = false; 
+  bool dataLoaded = false;
+  String pName = "";
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  List<DropdownMenuItem<String>> dropDownDocs = [];
+
+  Future<void> getDoctors() async{
+    
+    QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo:username).get();
+    var d = qsP.docs[0].data() as Map<String, dynamic>;
+    pName = d['FirstName'] + " " + d['LastName'];  
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('doctor').orderBy('FirstName').get();
+    var doctors = qs.docs;
+    for(var doc in doctors){
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if(data.containsKey('Username')){
+        dropDownDocs.add(DropdownMenuItem(
+          child: Text("Dr. ${data['FirstName']} ${data['LastName']}"),
+          value: data['Username'],
+        ));
+      }
+    }
+    setState(() {});
+  }
+
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
   }
   
-  String selectedValue = "USA";
+  String selectedDoc = "";
   String feedback = "";
   List<bool> stars = [true, false, false, false, false];
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  
   @override
   void initState(){
+    if(dropDownDocs.isEmpty){
+      getDoctors().whenComplete(() => setState(() => dataLoaded = true));
+    }
     super.initState();
   }
 
@@ -87,7 +132,33 @@ class _SubmitFeedbackState extends State<SubmitFeedback> {
                             height: mqh*0.755,
                             child: Form(
                               key: formKey,
-                              child: SingleChildScrollView(
+                              child: (!dataLoaded)?Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height:mqw*0.1,
+                                      width:mqw*0.1,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.amber.shade800,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.035,
+                                    ),
+                                    Text(
+                                      "Loading Data ...",
+                                      textAlign: TextAlign.center,
+                                      style:TextStyle(
+                                        fontSize: mqh*0.02,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ):
+                              SingleChildScrollView(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,13 +171,22 @@ class _SubmitFeedbackState extends State<SubmitFeedback> {
                                       )
                                     ),
                                     SearchChoices.single(
-                                      items: dropdownItems,
-                                      value: selectedValue,
+                                      items: dropDownDocs,
+                                      value: selectedDoc,
                                       hint: "Select one",
                                       searchHint: null,
                                       onChanged: (value) {
                                         setState(() {
-                                          selectedValue = value;
+                                          selectedDoc = value;
+                                          feedback = "";
+                                          stars = [true, false, false, false, false];
+                                        });
+                                      },
+                                      onClear: (){
+                                        setState(() {
+                                          selectedDoc = "";
+                                          feedback = "";
+                                          stars = [true, false, false, false, false];
                                         });
                                       },
                                       style:TextStyle(
@@ -121,76 +201,103 @@ class _SubmitFeedbackState extends State<SubmitFeedback> {
                                     SizedBox(
                                       height:mqh*0.04
                                     ),
-                                    Text(
-                                      "Rate Doctor",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.035,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                    if(selectedDoc!="")
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        for(var i=0;i<5;i++)
-                                        IconButton(
-                                          icon: stars[i]?Icon(Icons.star, color: Colors.amber.shade800):Icon(Icons.star_border, color: Colors.black.withAlpha(200)),
-                                          iconSize: mqh*0.052,
-                                          onPressed: () {
-                                            setState(() {
-                                              for(var j=0;j<=i;j++){
-                                                stars[j] = true;
+                                        Text(
+                                          "Rate Doctor",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.035,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            for(var i=0;i<5;i++)
+                                            IconButton(
+                                              icon: stars[i]?Icon(Icons.star, color: Colors.amber.shade800):Icon(Icons.star_border, color: Colors.black.withAlpha(200)),
+                                              iconSize: mqh*0.052,
+                                              onPressed: () {
+                                                setState(() {
+                                                  for(var j=0;j<=i;j++){
+                                                    stars[j] = true;
+                                                  }
+                                                  for(var j=i+1;j<5;j++){
+                                                    stars[j] = false;
+                                                  }
+                                                });
                                               }
-                                              for(var j=i+1;j<5;j++){
-                                                stars[j] = false;
-                                              }
-                                            });
-                                          }
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.03
+                                        ),
+                                        Text(
+                                          "Comment",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.035,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.01
+                                        ),
+                                        TextFormField(
+                                          decoration: const InputDecoration(
+                                            hintText: "Enter your honest feedback",
+                                          ),
+                                          maxLength: 200,
+                                          maxLines: 5,
+                                          minLines: 1,
+                                          onChanged:(value){
+                                            feedback = value;
+                                          },
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.05
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
-                                      height:mqh*0.03
-                                    ),
-                                    Text(
-                                      "Comment",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.035,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.01
-                                    ),
-                                    TextFormField(
-                                      decoration: const InputDecoration(
-                                        hintText: "Enter your honest feedback",
-                                      ),
-                                      maxLength: 200,
-                                      maxLines: 5,
-                                      minLines: 1,
-                                      onChanged:(value){
-                                        feedback = value;
-                                      },
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.05
-                                    ),
+                                    
                                     Container(
                                       alignment: Alignment.center,
                                       child: Material(
-                                        color: (_check1 == true)?Colors.orange[300]:Colors.orange,
+                                        color: (selectedDoc!="")?(_check1 == true)?Colors.orange[300]:Colors.orange:Colors.grey,
                                         borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
-                                          onTap: () {
-                                            setState((){
-                                              _check1 = !_check1;
-                                              int i=0;
-                                              for(i=0;i<5;i++){
-                                                if(stars[i] == false){
-                                                  break;
-                                                }
+                                          onTap: ()async {
+                                            if(selectedDoc!=""){
+                                              if(feedback==""){
+                                                ScaffoldMessenger.of(context).showSnackBar(snackBar('Provide some feedback!'));
                                               }
-                                            });
+                                              else{
+                                                print(FirebaseAuth.instance.currentUser!.displayName);
+                                                var ii=0;
+                                                for(var i=0;i<stars.length;i++){
+                                                  if(stars[i]){
+                                                    ii++;
+                                                  }
+                                                }
+                                                setState((){
+                                                  _check1 = !_check1;
+                                                });
+                                                await FirebaseFirestore.instance.collection('feedback').doc(selectedDoc).update({
+                                                  'feedbacks': FieldValue.arrayUnion([
+                                                    {
+                                                      'Feedback' : feedback,
+                                                      'Patient' : pName,
+                                                      'Rating': ii,
+                                                    }
+                                                  ])
+                                                }).whenComplete(() {
+                                                  Navigator.of(context).pop();
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar('Feedback submitted successfully!!'));
+                                                });
+                                              }
+                                            }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
