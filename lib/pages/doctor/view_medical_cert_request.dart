@@ -1,9 +1,8 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-
 
 class MedCertReqs extends StatefulWidget {
   const MedCertReqs({ Key? key }) : super(key: key);
@@ -12,58 +11,61 @@ class MedCertReqs extends StatefulWidget {
   _MedCertReqsState createState() => _MedCertReqsState();
 }
 
-enum CertStatus {
-  none,
-  approved,
-  pending,
-  rejected,
-}
-
 class MedCertRequests{
+  String mcId = "";
+  String pId = "";
   String patient = "";
-  DateTime fromDate = DateTime.now();
-  DateTime toDate = DateTime.now();
-  CertStatus status = CertStatus.none;
+  String doctor = "";
+  String fromDate = DateTime.now().toString();
+  String toDate = DateTime.now().toString();
+  int status = 2;
   String reason = "";
-  String certUrl = "";
 
-  MedCertRequests(this.patient, this.fromDate, this.toDate, this.status, this.reason, this.certUrl);
+  MedCertRequests(this.mcId, this.pId, this.patient, this.doctor, this.fromDate, this.toDate, this.status, this.reason);
 }
 
 class _MedCertReqsState extends State<MedCertReqs> {
   final formKey = GlobalKey<FormState>();
+  List<MedCertRequests> medCertsReqs = [];
+  bool dataLoaded = false;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
 
-  List<MedCertRequests> medCertsReqs = [
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever fever fever fever fever fever in order to open APK files, your application needs', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever in order to open APK files, your application needs', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-  ];
+  Future<void> getMedCertRequests() async{
+    medCertsReqs.clear();
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('medicalCertificate').get();
+    for(var pats in qs.docs){
+      QuerySnapshot qsD = await FirebaseFirestore.instance.collection('medicalCertificate').doc(pats.id).collection(username).get();
+      QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo:pats.id).get();
+      String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+      QuerySnapshot qsDd = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:username).get();
+      String dName = qsDd.docs[0]['FirstName']!+" "+qsDd.docs[0]['LastName']!;
+      for(var t in qsD.docs){
+        Map<String, dynamic> data = t.data() as Map<String, dynamic>;
+        medCertsReqs.add(MedCertRequests(
+          t.id,
+          pats.id,
+          pName,
+          dName,
+          data['dateFrom']!,
+          data['dateTo']!,
+          data['isApproved']!,
+          data['Reason']!,
+        ));
+      }
+      setState(() {});
+    }
+  }
 
   @override
   void initState(){
+    if(medCertsReqs.isEmpty){
+      getMedCertRequests().then((value){
+        setState(() {
+          dataLoaded = true;
+        });
+      });
+    }
     super.initState();
-  }
-
-  void _requestDownload(String link) async {
-    FlutterDownloader.initialize().then((value)async{
-      FlutterDownloader.enqueue(
-        url: link,
-        savedDir: '/storage/emulated/0/Download',
-        showNotification: true, // show download progress in status bar (for Android)
-        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-     );
-    });
-    
   }
 
   @override
@@ -115,7 +117,33 @@ class _MedCertReqsState extends State<MedCertReqs> {
                           child: SizedBox(
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!dataLoaded)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.cyan.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -127,7 +155,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                       itemCount: medCertsReqs.length,
                                       itemBuilder: (context, index){
                                         return SizedBox(
-                                          height:mqh*0.25,
+                                          height:mqh*0.26,
                                           child: Card(  
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(mqh*0.01)
@@ -180,7 +208,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                         Row(
                                                           children: [
                                                             Text(
-                                                              "Certificate Requested From:",
+                                                              "Certificate Request From:",
                                                               textAlign: TextAlign.center,
                                                               style:TextStyle(
                                                                 fontSize: mqw*0.04,
@@ -190,7 +218,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                             ),
                                                             Flexible(
                                                               child: Text(
-                                                                " "+ DateFormat("dd-MM-yy").format(medCertsReqs[index].fromDate),
+                                                                " "+ medCertsReqs[index].fromDate,
                                                                 textAlign: TextAlign.left,
                                                                 overflow: TextOverflow.ellipsis,
                                                                 softWrap:false,
@@ -206,7 +234,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                         Row(
                                                           children: [
                                                             Text(
-                                                              "Certificate Requested To:",
+                                                              "Certificate Request To:",
                                                               textAlign: TextAlign.center,
                                                               style:TextStyle(
                                                                 fontSize: mqw*0.04,
@@ -216,7 +244,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                             ),
                                                             Flexible(
                                                               child: Text(
-                                                                " "+ DateFormat("dd-MM-yy").format(medCertsReqs[index].toDate),
+                                                                " "+ medCertsReqs[index].toDate,
                                                                 textAlign: TextAlign.left,
                                                                 overflow: TextOverflow.ellipsis,
                                                                 softWrap:false,
@@ -250,7 +278,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                                 textAlign: TextAlign.left,
                                                                 overflow: TextOverflow.ellipsis,
                                                                 softWrap:false,
-                                                                maxLines: 2,
+                                                                maxLines: 3,
                                                                 style:TextStyle(
                                                                   fontSize: mqw*0.04,
                                                                   color: Colors.black87,
@@ -263,7 +291,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                     ),
                                                   ),
                                                 ),
-                                                if(medCertsReqs[index].status == CertStatus.pending || medCertsReqs[index].status == CertStatus.none)
+                                                if(medCertsReqs[index].status == 2)
                                                 Row(
                                                   children: [
                                                     Expanded(
@@ -275,7 +303,6 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                               BackdropFilter(
                                                                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                                                                 child: AlertDialog(
-                                                    
                                                                   backgroundColor: Colors.red[300],
                                                                   shape: RoundedRectangleBorder(
                                                                     borderRadius: BorderRadius.circular(mqh*0.025),
@@ -294,10 +321,15 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                                       children: [
                                                                         TextButton(
-                                                                          onPressed: (){
+                                                                          onPressed: ()async{
                                                                             Navigator.of(context).pop();
-                                                                            setState(() {
-                                                                              medCertsReqs[index].status = CertStatus.rejected;
+                                                                            await FirebaseFirestore.instance.collection('medicalCertificate').doc(medCertsReqs[index].pId)
+                                                                            .collection(username).doc(medCertsReqs[index].mcId).update({
+                                                                              'isApproved': 1,
+                                                                            }).whenComplete(() => {
+                                                                              setState(() {
+                                                                                medCertsReqs[index].status = 1;
+                                                                              }),
                                                                             });
                                                                           },
                                                                           child: Text(
@@ -375,10 +407,15 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                                       children: [
                                                                         TextButton(
-                                                                          onPressed: (){
+                                                                          onPressed: ()async{
                                                                             Navigator.of(context).pop();
-                                                                            setState(() {
-                                                                              medCertsReqs[index].status = CertStatus.approved;
+                                                                            await FirebaseFirestore.instance.collection('medicalCertificate').doc(medCertsReqs[index].pId)
+                                                                            .collection(username).doc(medCertsReqs[index].mcId).update({
+                                                                              'isApproved': 0,
+                                                                            }).whenComplete(() => {
+                                                                              setState(() {
+                                                                                medCertsReqs[index].status = 0;
+                                                                              }),
                                                                             });
                                                                           },
                                                                           child: Text(
@@ -431,7 +468,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                     )
                                                   ]
                                                 ),
-                                                if(medCertsReqs[index].status != CertStatus.pending && medCertsReqs[index].status != CertStatus.none)
+                                                if(medCertsReqs[index].status != 2)
                                                 Row(
                                                   children: [
                                                     Container(      
@@ -440,7 +477,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                       height: mqh*0.064757,
                                                       decoration: BoxDecoration(
                                                         color: 
-                                                        (medCertsReqs[index].status==CertStatus.rejected)?Colors.red[400]:Colors.green[400],
+                                                        (medCertsReqs[index].status==1)?Colors.red[400]:Colors.green[400],
                                                         borderRadius: BorderRadius.only(
                                                           bottomLeft: Radius.circular(mqh*0.01),
                                                           bottomRight: Radius.circular(mqh*0.01),
@@ -448,7 +485,7 @@ class _MedCertReqsState extends State<MedCertReqs> {
                                                       ),
                                                       alignment: Alignment.center,
                                                       child: Text(
-                                                        (medCertsReqs[index].status==CertStatus.rejected)?"Rejected":"Approved",
+                                                        (medCertsReqs[index].status==1)?"Rejected":"Approved",
                                                         textAlign: TextAlign.center,
                                                         style:TextStyle(
                                                           fontSize: mqw*0.04,
