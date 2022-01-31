@@ -475,10 +475,14 @@ class _BookAppointmentState extends State<BookAppointment> {
                                                       'Reason': reason,
                                                       'Timing': DateFormat('dd-MM-yyyy ').format(selectedDate)+times[selectedTimeSlot],
                                                       'isUrgent': isAppointUrgent,
-                                                      'isApproved': false
-                                                    }).whenComplete(() {
-                                                      Navigator.of(context).pop();
-                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar('Appointment created successfully!'));
+                                                      'isApproved': 2
+                                                    }).whenComplete(() async{
+                                                      await FirebaseFirestore.instance.collection('appointment').doc(username).update({ 
+                                                        'docs': FieldValue.arrayUnion([selectedDoc]),
+                                                      }).whenComplete(() {
+                                                        Navigator.of(context).pop();
+                                                        ScaffoldMessenger.of(context).showSnackBar(snackBar('Appointment created successfully!'));
+                                                      });
                                                     });
                                                   }else{
                                                     ScaffoldMessenger.of(context).showSnackBar(snackBar('Please select a date-time slot!'));

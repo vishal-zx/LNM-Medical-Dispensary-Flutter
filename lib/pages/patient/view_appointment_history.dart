@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,7 +15,7 @@ class Appointments{
   String doctor = "";
   String dateTime = "";
   bool isAppointUrgent = false;
-  bool isApproved = false;
+  int isApproved = 2;
   String reason = "";
 
   Appointments(this.doctor, this.dateTime, this.isAppointUrgent, this.isApproved, this.reason);
@@ -21,32 +23,33 @@ class Appointments{
 
 class _CheckAppointHistoryState extends State<CheckAppointHistory> {
   final formKey = GlobalKey<FormState>();
+  List<Appointments> appoints = [];
+  bool load = false;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
 
-  List<Appointments> appoints = [
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, false, 'fever fever fever fever fever fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, false, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, true, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, false, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, true, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, false, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), false, true, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), true, true, 'fever'),
-  ];
+  Future<void> getAppoints()async{
+    DocumentSnapshot qs = await FirebaseFirestore.instance.collection('appointment').doc(username).get();
+    var app = qs.data() as Map<String, dynamic>;
+    List<dynamic> docs = app['docs']!;
+    for(var i in docs){
+      QuerySnapshot qs = await FirebaseFirestore.instance.collection('appointment').doc(username).collection(i.toString()).get();
+      var apps = qs.docs;
+      for(var ap in apps){
+        var t = ap.data() as Map<String, dynamic>;
+        QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:i.toString()).get();
+        String dName = qsD.docs[0]['FirstName']!+" "+qsD.docs[0]['LastName']!;
+        appoints.add(Appointments(dName, t['Timing']!, t['isUrgent']!, t['isApproved']!, t['Reason']!));
+        setState(() {});
+      }
+    }
+    setState(() {});
+  }
 
   @override
   void initState(){
+    if(appoints.isEmpty){
+      getAppoints().whenComplete(() => setState((){load = true;}));
+    }
     super.initState();
   }
 
@@ -100,7 +103,33 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                             padding: EdgeInsets.only(right:mqw*0.05),
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!load)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.cyan.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -117,7 +146,7 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(mqh*0.01)
                                             ),
-                                            color: (appoints[index].isApproved)?Colors.green[200]:Colors.red[200],
+                                            color: (appoints[index].isApproved==2)?Colors.orange[200]:(appoints[index].isApproved==0)?Colors.green[200]:Colors.red[200],
                                             child: Container(
                                               padding: EdgeInsets.all(mqw*0.02),
                                               child: Column(
@@ -156,7 +185,7 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                                                           Column(
                                                             children: [
                                                               Text(
-                                                                appoints[index].dateTime.substring(0,9),
+                                                                appoints[index].dateTime.substring(0,10),
                                                                 textAlign: TextAlign.center,
                                                                 style:TextStyle(
                                                                   fontSize: mqw*0.03,
@@ -164,7 +193,7 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                                                                 )
                                                               ),
                                                               Text(
-                                                                appoints[index].dateTime.substring(9),
+                                                                appoints[index].dateTime.substring(11),
                                                                 textAlign: TextAlign.center,
                                                                 style:TextStyle(
                                                                   fontSize: mqw*0.03,
