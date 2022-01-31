@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
@@ -11,29 +13,61 @@ class DoctorProfile extends StatefulWidget {
 
 class _DoctorProfileState extends State<DoctorProfile> {
   final formKey = GlobalKey<FormState>();
-  bool _check1 = false; 
-  String username = "19ucs053";
+  bool _check1 = false;
   bool _check = false;
-  String email = "19ucs053@lnmiit.ac.in";
   String fName = "";
   String lName = "";
   String speciality = "";
   bool isMale = true;
   String mob = "";
   String age = "";
+  bool isLoaded = false;
+  String email = FirebaseAuth.instance.currentUser!.email!;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
+  }
+
+  Future<void> getDocDetails()async{
+    QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:username).get();
+    var data = qsD.docs[0].data() as Map<String, dynamic>;
+    // print(data);
+    setState(() {
+      fName = data['FirstName']! as String;
+      lName = data['LastName']! as String;
+      speciality = data['Speciality']! as String;
+      isMale = data['isMale']! as bool;
+      mob = data['Mob']! as String;
+      age = data['Age']! as String;
+    });
+    setState(() {});
   }
 
   @override
   void initState(){
+    getDocDetails().whenComplete(() => setState((){isLoaded = true;}));
     super.initState();
   }
 
@@ -92,7 +126,33 @@ class _DoctorProfileState extends State<DoctorProfile> {
                             height: mqh*0.755,
                             child: Form(
                               key: formKey,
-                              child: SingleChildScrollView(
+                              child: (!isLoaded)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.cyan.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(), 
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -107,7 +167,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                     ),
                                     TextFormField(
                                       readOnly: true,
-                                      controller: TextEditingController()..text = email,
+                                      initialValue: email,
                                     ),
                                     SizedBox(
                                       height:mqh*0.06
@@ -121,7 +181,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                     ),
                                     TextFormField(
                                       readOnly: true,
-                                      controller: TextEditingController()..text = username,
+                                      initialValue: username,
                                     ),
                                     SizedBox(
                                       height:mqh*0.06
@@ -137,6 +197,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter your first name",
                                       ),
+                                      initialValue: fName,
                                       validator: (value){
                                         if(value!.isEmpty){
                                           return "First name can't be Empty!";
@@ -164,6 +225,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter your last name",
                                       ),
+                                      initialValue: lName,
                                       validator: (value){
                                         if(value!.isEmpty){
                                           return "Last name can't be Empty!";
@@ -191,6 +253,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter your speciality",
                                       ),
+                                      initialValue: speciality,
                                       validator: (value){
                                         if(value!.isEmpty){
                                           return "Speciality can't be Empty!";
@@ -218,6 +281,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                                       ],
+                                      initialValue: mob,
                                       decoration: const InputDecoration(
                                         hintText: "Enter your mobile number",
                                       ),
@@ -240,6 +304,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                                       ],
+                                      initialValue: age,
                                       decoration: const InputDecoration(
                                         hintText: "Enter your age",
                                       ),
@@ -299,12 +364,24 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                         color: (_check1 == true)?Colors.blue[300]:Colors.blue,
                                         borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
                                         child: InkWell(
-                                          onTap: () {
-                                            setState((){
-                                              _check1 = !_check1;
-                                              _check = !_check;
-                                              
-                                            });
+                                          onTap: () async{
+                                            if(fName=='' || lName == '' || age == '' || speciality == '' || mob == '')
+                                            {
+                                              ScaffoldMessenger.of(context).showSnackBar(snackBar('Please fill all the details !'));
+                                            }
+                                            else{
+                                              await FirebaseFirestore.instance.collection('doctor').doc(username).update({
+                                                'FirstName': fName,
+                                                'LastName': lName,
+                                                'Mob': mob,
+                                                'Age': age,
+                                                'isMale': isMale,
+                                                'Speciality':speciality,
+                                              }).whenComplete(() => setState(() {
+                                                Navigator.of(context).pop();
+                                                 ScaffoldMessenger.of(context).showSnackBar(snackBar('Profile Updated Successfully !'));
+                                              }));
+                                            }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
