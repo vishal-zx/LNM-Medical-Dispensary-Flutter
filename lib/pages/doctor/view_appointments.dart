@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,43 +13,56 @@ class ViewAppointsRequests extends StatefulWidget {
 }
 
 class Appointments{
+  String appId = "";
+  String patId = "";
   String patient = "";
   String dateTime = "";
   bool isAppointUrgent = false;
   var status = 2;
   String reason = "";
 
-  Appointments(this.patient, this.dateTime, this.isAppointUrgent, this.status, this.reason);
+  Appointments(this.appId, this.patId, this.patient, this.dateTime, this.isAppointUrgent, this.status, this.reason);
 }
 
 class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
-  final formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();  
+  bool dataLoaded = false;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
 
-  List<Appointments> appoints = [
-      Appointments('Vishal Gupta ', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 1, 'fever fever fever fever fever fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever fever fever fever fever fever fever fever fever fever fever fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 1, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
-      Appointments('Vishal Gupta', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Chand Singh', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 2, 'fever'),
-      Appointments('Amit Malhotra', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), false, 2, 'fever'),
-      Appointments('Nidhi Bisht', DateFormat("dd-MM-yy, hh:mm a").format(DateTime.now()), true, 0, 'fever'),
-  ];
+  List<Appointments> appoints = [];
+
+  Future<void> getAppoints() async{
+    appoints.clear();
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('appointment').get();
+    for(var pats in qs.docs){
+      QuerySnapshot qsD = await FirebaseFirestore.instance.collection('appointment').doc(pats.id).collection(username).get();
+      QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo:pats.id).get();
+      String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+      for(var t in qsD.docs){
+        Map<String, dynamic> data = t.data() as Map<String, dynamic>;
+        appoints.add(Appointments(
+          t.id,
+          pats.id,
+          pName,
+          // pats.id.toString(),
+          data['Timing']!.replaceAll('-20', '-'),
+          data['isUrgent']!,
+          data['isApproved']!,
+          data['Reason']!,
+        ));
+      }
+    }
+  }
 
   @override
   void initState(){
+    if(appoints.isEmpty){
+      getAppoints().whenComplete(() {
+        setState(() {
+          dataLoaded = true;
+        });
+      });
+    }
     super.initState();
   }
 
@@ -101,7 +116,33 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                             padding: EdgeInsets.only(right:mqw*0.05),
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!dataLoaded)?Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height:mqw*0.1,
+                                      width:mqw*0.1,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.cyan.shade800,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.035,
+                                    ),
+                                    Text(
+                                      "Loading Data ...",
+                                      textAlign: TextAlign.center,
+                                      style:TextStyle(
+                                        fontSize: mqh*0.02,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ):
+                              SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -267,7 +308,6 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                               BackdropFilter(
                                                                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                                                                 child: AlertDialog(
-                                                    
                                                                   backgroundColor: Colors.red[300],
                                                                   shape: RoundedRectangleBorder(
                                                                     borderRadius: BorderRadius.circular(mqh*0.025),
@@ -286,10 +326,15 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                                       children: [
                                                                         TextButton(
-                                                                          onPressed: (){
+                                                                          onPressed: ()async{
                                                                             Navigator.of(context).pop();
-                                                                            setState(() {
-                                                                              appoints[index].status = 1;
+                                                                            await FirebaseFirestore.instance.collection('appointment').doc(appoints[index].patId)
+                                                                            .collection(username).doc(appoints[index].appId).update({
+                                                                              'isApproved': 1,
+                                                                            }).whenComplete(() => {
+                                                                              setState(() {
+                                                                                appoints[index].status = 1;
+                                                                              }),
                                                                             });
                                                                           },
                                                                           child: Text(
@@ -367,10 +412,15 @@ class _ViewAppointsRequestsState extends State<ViewAppointsRequests> {
                                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                                       children: [
                                                                         TextButton(
-                                                                          onPressed: (){
+                                                                          onPressed: ()async{
                                                                             Navigator.of(context).pop();
-                                                                            setState(() {
-                                                                              appoints[index].status = 0;
+                                                                            await FirebaseFirestore.instance.collection('appointment').doc(appoints[index].patId)
+                                                                            .collection(username).doc(appoints[index].appId).update({
+                                                                              'isApproved': 0,
+                                                                            }).whenComplete(() => {
+                                                                              setState(() {
+                                                                                appoints[index].status = 0;
+                                                                              }),
                                                                             });
                                                                           },
                                                                           child: Text(

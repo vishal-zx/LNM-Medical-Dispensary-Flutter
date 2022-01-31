@@ -261,7 +261,7 @@ class _NewTreatmentState extends State<NewTreatment> {
                                             color: Colors.black,
                                             fontFamily: 'Avenir'
                                           ),
-                                          hint: (dropDownApps.isEmpty)?"No Approved Appointments":"Select one",
+                                          hint: (dropDownApps.isEmpty)?"No Approved Appointments":"Select a approved appointment",
                                           searchHint: null,
                                           onClear: (){
                                             setState(() {
