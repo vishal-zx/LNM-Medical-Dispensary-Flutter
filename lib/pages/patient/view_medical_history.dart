@@ -1,8 +1,10 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:lnm_medical_dispensary/pages/patient/medical_record.dart';
 import 'package:page_transition/page_transition.dart';
-import 'medical_record.dart';
+import '../doctor/view_pat_history.dart';
 
 class ViewMedHis extends StatefulWidget {
   const ViewMedHis({ Key? key }) : super(key: key);
@@ -11,45 +13,45 @@ class ViewMedHis extends StatefulWidget {
   _ViewMedHisState createState() => _ViewMedHisState();
 }
 
-class PatHistory{
-  String doctor = "";
-  String dateTime = "";
-  String reason = "";
-  String prescription = "";
-  String instruction = "";
-  String refer = "";
-
-  PatHistory(this.doctor, this.dateTime, this.reason, this.prescription , this.instruction, this.refer);
-}
-
 class _ViewMedHisState extends State<ViewMedHis> {
   final formKey = GlobalKey<FormState>();
+  bool hisLoaded = false;
+  List<PatHistory> patHis = [];
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  late PatDetails pd;
+  
+  Future<void> getPatHis() async{
+    patHis.clear();
+    DocumentSnapshot qs = await FirebaseFirestore.instance.collection('patientHistory').doc(username).get();
+    var history = qs.data() as Map<String, dynamic>;
+    history.forEach((key, value) async{
+      QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: username).get();
+      String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+      pd = PatDetails(pName, qsP.docs[0]['Email'], qsP.docs[0]['Age'], qsP.docs[0]['Mob'], (qsP.docs[0]['isMale'])?"Male":"Female");
+      QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:key).get();
+      String dName = qsD.docs[0]['FirstName']!+" "+qsD.docs[0]['LastName']!;
+      for(var i in value){
+        var his = i as Map<String, dynamic>;
+        patHis.add(
+          PatHistory(dName, pName, his['Timing']!, his['Reason']!, his['Prescription']!, his['OtherIns']!, his['Refer']!)
+        );
+        setState(() {});
+      }
+    });
+  }
 
-  List<PatHistory> patHis = [
-      PatHistory('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever fever fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Vishal Gupta', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Chand Singh', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Amit Malhotra', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-      PatHistory('Nidhi Bisht', DateFormat("dd-MM-yy hh:mm a").format(DateTime.now()), 'fever', 'Take Paracetamol XYZ 600mg','',''),
-  ];
 
   @override
   void initState(){
+    if(patHis.isEmpty){
+      getPatHis().then((value){
+        setState(() {
+          Future.delayed(const Duration(milliseconds: 500), (){
+            hisLoaded = true;
+          });
+        });
+      });
+    }
     super.initState();
   }
 
@@ -84,9 +86,6 @@ class _ViewMedHisState extends State<ViewMedHis> {
                       )
                     )
                   ),
-                  SizedBox(
-                    height:mqh*0.02
-                  ),
                   Container(
                     alignment: Alignment.bottomRight,
                     child: Stack(
@@ -106,13 +105,40 @@ class _ViewMedHisState extends State<ViewMedHis> {
                             padding: EdgeInsets.only(right:mqw*0.05),
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!hisLoaded)?Center(
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.amber.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children:[
                                   Container(
                                     padding: EdgeInsets.only(left:mqw*0.07, right:mqw*0.02),
                                     width: mqw*0.84,
-                                    height: mqh*0.755,
+                                    height: mqh*0.74,
                                     child: ListView.builder(
                                       physics: const BouncingScrollPhysics(), 
                                       itemCount: patHis.length,
@@ -124,7 +150,7 @@ class _ViewMedHisState extends State<ViewMedHis> {
                                               PageTransition(
                                                 type: PageTransitionType.bottomToTop, 
                                                 duration: const Duration(milliseconds: 400),
-                                                child: MedRecord(patHis: patHis[index]),
+                                                child: MedRecord(patHis: patHis[index], patDetails: pd),
                                                 childCurrent: const ViewMedHis()
                                               )
                                             );
@@ -142,116 +168,125 @@ class _ViewMedHisState extends State<ViewMedHis> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons.person,
-                                                              size: mqh*0.025
-                                                            ),
-                                                            Text(
-                                                              " Dr. "+patHis[index].doctor,
-                                                              textAlign: TextAlign.center,
-                                                              style:TextStyle(
-                                                                fontSize: mqw*0.04,
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Colors.black87,
-                                                              )
-                                                            ),
-                                                          ],
+                                                        Text(
+                                                          "Doctor:",
+                                                          textAlign: TextAlign.center,
+                                                          style:TextStyle(
+                                                            fontSize: mqw*0.04,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black87,
+                                                          )
                                                         ),
-                                                        Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons.access_time,
-                                                              size: mqh*0.025
-                                                            ),
-                                                            SizedBox(
-                                                              width: mqw*0.015,
-                                                            ),
-                                                            Column(
-                                                              children: [
-                                                                Text(
-                                                                  patHis[index].dateTime.substring(0,9),
-                                                                  textAlign: TextAlign.center,
-                                                                  style:TextStyle(
-                                                                    fontSize: mqw*0.03,
-                                                                    color: Colors.black87,
-                                                                  )
-                                                                ),
-                                                                Text(
-                                                                  patHis[index].dateTime.substring(9),
-                                                                  textAlign: TextAlign.center,
-                                                                  style:TextStyle(
-                                                                    fontSize: mqw*0.03,
-                                                                    color: Colors.black87,
-                                                                  )
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
+                                                        Flexible(
+                                                          child: Text(
+                                                            " Dr. "+ patHis[index].doctor,
+                                                            textAlign: TextAlign.left,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            softWrap:false,
+                                                            maxLines: 1,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
                                                     SizedBox(
-                                                      height: mqh*0.015,
+                                                      height:mqh*0.01
                                                     ),
-                                                    Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children:[
-                                                        Row(
-                                                          children: [
-                                                            SizedBox(
-                                                              width: mqw*0.007,
-                                                            ),
-                                                            Text(
-                                                              "Reason: ",
-                                                              textAlign: TextAlign.left,
-                                                              overflow: TextOverflow.ellipsis,
-                                                              style:TextStyle(
-                                                                fontSize: mqw*0.035,
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Colors.black87,
-                                                              )
-                                                            ),
-                                                            Text(
-                                                              patHis[index].reason,
-                                                              textAlign: TextAlign.center,
-                                                              style:TextStyle(
-                                                                fontSize: mqw*0.035,
-                                                                color: Colors.black87,
-                                                              )
-                                                            ),
-                                                          ],
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Timing:",
+                                                          textAlign: TextAlign.center,
+                                                          style:TextStyle(
+                                                            fontSize: mqw*0.04,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black87,
+                                                          )
                                                         ),
-                                                        Row(
-                                                          children: [
-                                                            Text(
-                                                              "Prescription: ",
-                                                              textAlign: TextAlign.center,
-                                                              style:TextStyle(
-                                                                fontSize: mqw*0.035,
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Colors.black87,
-                                                              )
-                                                            ),
-                                                            Flexible(
-                                                              child: Text(
-                                                                patHis[index].prescription,
-                                                                softWrap: true,
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
-                                                                textAlign: TextAlign.center,
-                                                                style:TextStyle(
-                                                                  fontSize: mqw*0.035,
-                                                                  color: Colors.black87,
-                                                                )
-                                                              ),
-                                                            ),
-                                                          ],
+                                                        Flexible(
+                                                          child: Text(
+                                                            " "+ patHis[index].dateTime,
+                                                            textAlign: TextAlign.left,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            softWrap:false,
+                                                            maxLines: 1,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
                                                         ),
-                                                      ]
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height:mqh*0.01
+                                                    ),
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Reason:",
+                                                          textAlign: TextAlign.center,
+                                                          style:TextStyle(
+                                                            fontSize: mqw*0.04,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black87,
+                                                          )
+                                                        ),
+                                                        SizedBox(
+                                                          width:mqw*0.01
+                                                        ),
+                                                        Flexible(
+                                                          child: Text(
+                                                            patHis[index].reason,
+                                                            textAlign: TextAlign.left,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            softWrap:false,
+                                                            maxLines: 2,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height:mqh*0.01
+                                                    ),
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Prescription:",
+                                                          textAlign: TextAlign.center,
+                                                          style:TextStyle(
+                                                            fontSize: mqw*0.04,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black87,
+                                                          )
+                                                        ),
+                                                        SizedBox(
+                                                          width:mqw*0.01
+                                                        ),
+                                                        Flexible(
+                                                          child: Text(
+                                                            patHis[index].prescription,
+                                                            textAlign: TextAlign.left,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            softWrap:false,
+                                                            maxLines: 2,
+                                                            style:TextStyle(
+                                                              fontSize: mqw*0.04,
+                                                              color: Colors.black87,
+                                                            )
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),

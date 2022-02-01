@@ -112,7 +112,7 @@ class _CheckAppointHistoryState extends State<CheckAppointHistory> {
                                     height:mqw*0.1,
                                     width:mqw*0.1,
                                     child: CircularProgressIndicator(
-                                      color: Colors.cyan.shade800,
+                                      color: Colors.amber.shade800,
                                     ),
                                   ),
                                   SizedBox(
