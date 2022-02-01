@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
@@ -6,33 +8,62 @@ class PatientProfile extends StatefulWidget {
   const PatientProfile({ Key? key }) : super(key: key);
 
   @override
-  _PatientProfileState createState() => _PatientProfileState();
+  PatientProfileState createState() => PatientProfileState();
 }
 
-class _PatientProfileState extends State<PatientProfile> {
+class PatientProfileState extends State<PatientProfile> {
   final formKey = GlobalKey<FormState>();
-  bool _check1 = false; 
-  String username = "19ucs053";
-  bool _check = false;
-  String email = "19ucs053@lnmiit.ac.in";
+  bool _check1 = false;
   String fName = "";
   String lName = "";
   bool isMale = true;
   String mob = "";
   String age = "";
+  bool isLoaded = false;
+  String email = FirebaseAuth.instance.currentUser!.email!;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
+  }
+
+  Future<void> getPatDetails()async{
+    QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo:username).get();
+    var data = qsP.docs[0].data() as Map<String, dynamic>;
+    setState(() {
+      fName = data['FirstName']! as String;
+      lName = data['LastName']! as String;
+      isMale = data['isMale']! as bool;
+      mob = data['Mob']! as String;
+      age = data['Age']! as String;
+    });
+    setState(() {});
   }
 
   @override
   void initState(){
+    getPatDetails().whenComplete(() => setState((){isLoaded = true;}));
     super.initState();
   }
 
@@ -91,7 +122,33 @@ class _PatientProfileState extends State<PatientProfile> {
                             height: mqh*0.755,
                             child: Form(
                               key: formKey,
-                              child: SingleChildScrollView(
+                              child: (!isLoaded)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.amber.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(), 
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -106,7 +163,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                     ),
                                     TextFormField(
                                       readOnly: true,
-                                      controller: TextEditingController()..text = email,
+                                      initialValue: email,
                                     ),
                                     SizedBox(
                                       height:mqh*0.06
@@ -120,7 +177,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                     ),
                                     TextFormField(
                                       readOnly: true,
-                                      controller: TextEditingController()..text = username,
+                                      initialValue: username,
                                     ),
                                     SizedBox(
                                       height:mqh*0.06
@@ -136,6 +193,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter your first name",
                                       ),
+                                      initialValue: fName,
                                       validator: (value){
                                         if(value!.isEmpty){
                                           return "First name can't be Empty!";
@@ -163,6 +221,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                       decoration: const InputDecoration(
                                         hintText: "Enter your last name",
                                       ),
+                                      initialValue: lName,
                                       validator: (value){
                                         if(value!.isEmpty){
                                           return "Last name can't be Empty!";
@@ -190,6 +249,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                                       ],
+                                      initialValue: mob,
                                       decoration: const InputDecoration(
                                         hintText: "Enter your mobile number",
                                       ),
@@ -212,6 +272,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.allow(RegExp("[0-9]")),
                                       ],
+                                      initialValue: age,
                                       decoration: const InputDecoration(
                                         hintText: "Enter your age",
                                       ),
@@ -246,7 +307,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                               isMale = true;
                                             });
                                           },
-                                          color: isMale?Colors.orange[800]:Colors.orange[300],
+                                          color: isMale?Colors.orange[900]:Colors.orange[300],
                                         ),
                                         IconButton(
                                           icon: Icon(
@@ -258,7 +319,7 @@ class _PatientProfileState extends State<PatientProfile> {
                                               isMale = false;
                                             });
                                           },
-                                          color: isMale?Colors.orange[300]:Colors.orange[800],
+                                          color: isMale?Colors.orange[300]:Colors.orange[900],
                                         ),
                                       ]
                                     ),
@@ -269,21 +330,36 @@ class _PatientProfileState extends State<PatientProfile> {
                                       alignment: Alignment.center,
                                       child: Material(
                                         color: (_check1 == true)?Colors.orange[300]:Colors.orange,
-                                        borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
+                                        borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
-                                          onTap: () {
-                                            setState((){
-                                              _check1 = !_check1;
-                                              _check = !_check;
-                                              
-                                            });
+                                          onTap: () async{
+                                            if(!_check1){
+                                              if(fName=='' || lName == '' || age == '' || mob == '')
+                                              {
+                                                ScaffoldMessenger.of(context).showSnackBar(snackBar('Please fill all the details !'));
+                                              }
+                                              else{
+                                                print("$username us");
+                                                setState(() {_check1 = true;});
+                                                await FirebaseFirestore.instance.collection('patient').doc(username).update({
+                                                  'FirstName': fName,
+                                                  'LastName': lName,
+                                                  'Mob': mob,
+                                                  'Age': age,
+                                                  'isMale': isMale,
+                                                }).whenComplete(() => setState(() {
+                                                  Navigator.of(context).pop();
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar('Profile Updated Successfully !'));
+                                                }));
+                                              }
+                                            }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
-                                            width: _check?mqw*0.125: mqw*0.3,
+                                            width: _check1?mqw*0.125: mqw*0.3,
                                             height: mqw*0.125,
                                             alignment: Alignment.center,
-                                            child: _check?
+                                            child: _check1?
                                             const Icon(
                                               Icons.done, color: Colors.white,
                                             ) :

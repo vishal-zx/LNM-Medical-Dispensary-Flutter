@@ -86,6 +86,9 @@ class _ViewMedHisState extends State<ViewMedHis> {
                       )
                     )
                   ),
+                  SizedBox(
+                    height:mqh*0.02
+                  ),
                   Container(
                     alignment: Alignment.bottomRight,
                     child: Stack(

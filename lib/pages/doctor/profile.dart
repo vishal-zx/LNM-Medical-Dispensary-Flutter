@@ -14,7 +14,6 @@ class DoctorProfile extends StatefulWidget {
 class _DoctorProfileState extends State<DoctorProfile> {
   final formKey = GlobalKey<FormState>();
   bool _check1 = false;
-  bool _check = false;
   String fName = "";
   String lName = "";
   String speciality = "";
@@ -362,33 +361,36 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                       alignment: Alignment.center,
                                       child: Material(
                                         color: (_check1 == true)?Colors.blue[300]:Colors.blue,
-                                        borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
+                                        borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
                                           onTap: () async{
-                                            if(fName=='' || lName == '' || age == '' || speciality == '' || mob == '')
-                                            {
-                                              ScaffoldMessenger.of(context).showSnackBar(snackBar('Please fill all the details !'));
-                                            }
-                                            else{
-                                              await FirebaseFirestore.instance.collection('doctor').doc(username).update({
-                                                'FirstName': fName,
-                                                'LastName': lName,
-                                                'Mob': mob,
-                                                'Age': age,
-                                                'isMale': isMale,
-                                                'Speciality':speciality,
-                                              }).whenComplete(() => setState(() {
-                                                Navigator.of(context).pop();
-                                                 ScaffoldMessenger.of(context).showSnackBar(snackBar('Profile Updated Successfully !'));
-                                              }));
+                                            if(!_check1){
+                                              if(fName=='' || lName == '' || age == '' || speciality == '' || mob == '')
+                                              {
+                                                ScaffoldMessenger.of(context).showSnackBar(snackBar('Please fill all the details !'));
+                                              }
+                                              else{
+                                                setState(() {_check1 = true;});
+                                                await FirebaseFirestore.instance.collection('doctor').doc(username).update({
+                                                  'FirstName': fName,
+                                                  'LastName': lName,
+                                                  'Mob': mob,
+                                                  'Age': age,
+                                                  'isMale': isMale,
+                                                  'Speciality':speciality,
+                                                }).whenComplete(() => setState(() {
+                                                  Navigator.of(context).pop();
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar('Profile Updated Successfully !'));
+                                                }));
+                                              }
                                             }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
-                                            width: _check?mqw*0.125: mqw*0.3,
+                                            width: _check1?mqw*0.125: mqw*0.3,
                                             height: mqw*0.125,
                                             alignment: Alignment.center,
-                                            child: _check?
+                                            child: _check1?
                                             const Icon(
                                               Icons.done, color: Colors.white,
                                             ) :
