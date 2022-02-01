@@ -28,7 +28,6 @@ class _LoginState extends State<Login> {
   final formKey = GlobalKey<FormState>(); 
   final formKeyReset = GlobalKey<FormState>(); 
   bool _showPass = true;
-
   SnackBar snackBar(String text){
     var mqh = MediaQuery.of(context).size.height;
     var mqw = MediaQuery.of(context).size.width;
@@ -165,254 +164,163 @@ class _LoginState extends State<Login> {
                                   height: mqh*0.7,
                                   child:Form(
                                     key: formKey,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Username",
-                                          style:TextStyle(
-                                            fontSize: mqh*0.035,
-                                            color: Colors.black87,
-                                          )
-                                        ),
-                                        Text(
-                                          "(only a-z, 0-9, '.', '-' allowed)",
-                                          style:TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: mqh*0.015,
-                                            color: Colors.black45,
-                                          )
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.005
-                                        ),
-                                        TextFormField(
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(RegExp("[a-z0-9.-]")),
-                                          ],
-                                          decoration: const InputDecoration(
-                                            hintText: "Enter your username",
-                                          ),
-                                          validator: (value){
-                                            if(value!.isEmpty){
-                                              return "Username can't be Empty!";
-                                            }
-                                            return null;
-                                          },
-                                          onChanged: (value){
-                                            value = value.replaceAll(' ', '');
-                                            username = value;
-                                            email = value + "@lnmiit.ac.in";
-                                            setState(() {
-                                              
-                                            });
-                                          },
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.06
-                                        ),
-                                        Text(
-                                          "Password",
-                                          style:TextStyle(
-                                            fontSize: mqh*0.035,
-                                            color: Colors.black87,
-                                          )
-                                        ),
-                                        Text(
-                                          "(case sensitive)",
-                                          style:TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: mqh*0.015,
-                                            color: Colors.black45,
-                                          )
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.002
-                                        ),
-                                        TextFormField(
-                                          obscureText: _showPass,
-                                          decoration: InputDecoration(
-                                            hintText: "Enter your password",
-                                            suffix: InkWell(
-                                              onTap: _togglePass,
-                                              child: Icon(
-                                                _showPass?Icons.visibility:Icons.visibility_off,
-                                                size: mqh*0.025
-                                              ),
+                                    child: SingleChildScrollView(
+                                      physics: const BouncingScrollPhysics(),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Username",
+                                            style:TextStyle(
+                                              fontSize: mqh*0.035,
+                                              color: Colors.black87,
                                             )
                                           ),
-                                          validator: (value){
-                                            if(value!.isEmpty){return "Password can't be Empty!";}
-                                            else {return null;}
-                                          },
-                                          onChanged: (value){
-                                            password = value;
-                                            setState(() {
-                                              
-                                            });
-                                          },
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.06
-                                        ),
-                                        Container(
-                                          alignment: Alignment.center,
-                                          child: Material(
-                                            color: (_check == true)?Colors.green[300]:Colors.green,
-                                            borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
-                                            child: InkWell(
-                                              onTap: () async{
-                                                if(!_check){
-                                                  check(context);
-                                                  if(_check1){
-                                                    alertBox(
-                                                      Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          SizedBox(
-                                                            height:mqw*0.1,
-                                                            width:mqw*0.1,
-                                                            child: const CircularProgressIndicator(
-                                                              color: Colors.green,
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            height:mqh*0.035,
-                                                          ),
-                                                          Text(
-                                                            "Signing in..\nPlease wait..",
-                                                            textAlign: TextAlign.center,
-                                                            style:TextStyle(
-                                                              fontSize: mqh*0.02,
-                                                              color: Colors.black,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                    QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: username).get();
-                                                    QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo: username).get();
-                                                    QuerySnapshot qsA = await FirebaseFirestore.instance.collection('admin').where('Username', isEqualTo: username).get();
-                                                    var docsP = qsP.docs;
-                                                    var docsD = qsD.docs;
-                                                    var docsA = qsA.docs;
-                                                    if(docsP.isNotEmpty){
-                                                      setState((){
-                                                        role = 0;
-                                                      });
-                                                    }
-                                                    else if(docsD.isNotEmpty){
-                                                      setState((){
-                                                        role = 1;
-                                                      });
-                                                    }
-                                                    else if(docsA.isNotEmpty){
-                                                      setState((){
-                                                        role = 2;
-                                                      });
-                                                    }
-                                                    try{
-                                                      await FirebaseAuth.instance.signInWithEmailAndPassword(
-                                                        email: email, 
-                                                        password: password
-                                                      ).then((result)async{
-                                                        User? user = FirebaseAuth.instance.currentUser;
-                                                        if(user != null) {
-                                                          if(role == 0){
-                                                            Navigator.of(context).pop();
-                                                            alertBox(
-                                                              Column(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons.done, 
-                                                                    color: Colors.green.shade500,
-                                                                    size: mqh*0.04
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height:mqh*0.035,
-                                                                  ),
-                                                                  Text(
-                                                                    "Patient Login\n$email",
-                                                                    textAlign: TextAlign.center,
-                                                                    style:TextStyle(
-                                                                      fontSize: mqh*0.02,
-                                                                      color: Colors.black,
-                                                                    ),
-                                                                  ),
-                                                                ],
+                                          Text(
+                                            "(only a-z, 0-9, '.', '-' allowed)",
+                                            style:TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: mqh*0.015,
+                                              color: Colors.black45,
+                                            )
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.005
+                                          ),
+                                          TextFormField(
+                                            inputFormatters: <TextInputFormatter>[
+                                              FilteringTextInputFormatter.allow(RegExp("[a-z0-9.-]")),
+                                            ],
+                                            decoration: const InputDecoration(
+                                              hintText: "Enter your username",
+                                            ),
+                                            validator: (value){
+                                              if(value!.isEmpty){
+                                                return "Username can't be Empty!";
+                                              }
+                                              return null;
+                                            },
+                                            onChanged: (value){
+                                              value = value.replaceAll(' ', '');
+                                              username = value;
+                                              email = value + "@lnmiit.ac.in";
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.06
+                                          ),
+                                          Text(
+                                            "Password",
+                                            style:TextStyle(
+                                              fontSize: mqh*0.035,
+                                              color: Colors.black87,
+                                            )
+                                          ),
+                                          Text(
+                                            "(case sensitive)",
+                                            style:TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: mqh*0.015,
+                                              color: Colors.black45,
+                                            )
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.002
+                                          ),
+                                          TextFormField(
+                                            obscureText: _showPass,
+                                            decoration: InputDecoration(
+                                              hintText: "Enter your password",
+                                              suffix: InkWell(
+                                                onTap: _togglePass,
+                                                child: Icon(
+                                                  _showPass?Icons.visibility:Icons.visibility_off,
+                                                  size: mqh*0.025
+                                                ),
+                                              )
+                                            ),
+                                            validator: (value){
+                                              if(value!.isEmpty){return "Password can't be Empty!";}
+                                              else {return null;}
+                                            },
+                                            onChanged: (value){
+                                              password = value;
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.06
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: Material(
+                                              color: (_check == true)?Colors.green[300]:Colors.green,
+                                              borderRadius: BorderRadius.circular(_check?mqw*0.1:mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () async{
+                                                  if(!_check){
+                                                    check(context);
+                                                    if(_check1){
+                                                      alertBox(
+                                                        Column(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            SizedBox(
+                                                              height:mqw*0.1,
+                                                              width:mqw*0.1,
+                                                              child: const CircularProgressIndicator(
+                                                                color: Colors.green,
                                                               ),
-                                                            );
-                                                            SharedPreferences sp = await SharedPreferences.getInstance();
-                                                            sp.setString('email', email);
-                                                            Future.delayed(const Duration(seconds: 2), () {
-                                                              Navigator.push(
-                                                                context, PageTransition(
-                                                                  type: PageTransitionType.rightToLeft, 
-                                                                  duration: const Duration(milliseconds: 400),
-                                                                  child: const PatientHome(),
-                                                                )
-                                                              );
-                                                            });
-                                                          }
-                                                          else if(role==1 || role==2){
-                                                            if(!user.emailVerified){
-                                                              Navigator.of(context).pop();
-                                                              alertBox(
-                                                                Column(
-                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons.error, 
-                                                                      color: Colors.green.shade500,
-                                                                      size: mqh*0.04
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:mqh*0.035,
-                                                                    ),
-                                                                    Text(
-                                                                      "You're trying to login as ${(role==1)?"Doctor":"Admin"} with an unverified account.\n"
-                                                                      "Please verify first with the link sent to your email.",
-                                                                      textAlign: TextAlign.center,
-                                                                      style:TextStyle(
-                                                                        fontSize: mqh*0.02,
-                                                                        color: Colors.black,
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:mqh*0.015,
-                                                                    ),
-                                                                    Container(
-                                                                      padding: EdgeInsets.all(mqw*0.02),
-                                                                      decoration: BoxDecoration(
-                                                                        color: Colors.green[800],
-                                                                        borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
-                                                                      ),
-                                                                      child: GestureDetector(
-                                                                        onTap: () async {
-                                                                          await user.sendEmailVerification();
-                                                                          FirebaseAuth.instance.signOut();
-                                                                          Navigator.of(context).pop();
-                                                                          setState(() {
-                                                                            _check = false;
-                                                                          });
-                                                                        },
-                                                                        child: Text(
-                                                                          "Okay!",
-                                                                          textAlign: TextAlign.center,
-                                                                          style:TextStyle(
-                                                                            fontSize: mqh*0.02,
-                                                                            color: Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            }
-                                                            else{
+                                                            ),
+                                                            SizedBox(
+                                                              height:mqh*0.035,
+                                                            ),
+                                                            Text(
+                                                              "Signing in..\nPlease wait..",
+                                                              textAlign: TextAlign.center,
+                                                              style:TextStyle(
+                                                                fontSize: mqh*0.02,
+                                                                color: Colors.black,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                      QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: username).get();
+                                                      QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo: username).get();
+                                                      QuerySnapshot qsA = await FirebaseFirestore.instance.collection('admin').where('Username', isEqualTo: username).get();
+                                                      var docsP = qsP.docs;
+                                                      var docsD = qsD.docs;
+                                                      var docsA = qsA.docs;
+                                                      if(docsP.isNotEmpty){
+                                                        setState((){
+                                                          role = 0;
+                                                        });
+                                                      }
+                                                      else if(docsD.isNotEmpty){
+                                                        setState((){
+                                                          role = 1;
+                                                        });
+                                                      }
+                                                      else if(docsA.isNotEmpty){
+                                                        setState((){
+                                                          role = 2;
+                                                        });
+                                                      }
+                                                      try{
+                                                        await FirebaseAuth.instance.signInWithEmailAndPassword(
+                                                          email: email, 
+                                                          password: password
+                                                        ).then((result)async{
+                                                          User? user = FirebaseAuth.instance.currentUser;
+                                                          if(user != null) {
+                                                            if(role == 0){
                                                               Navigator.of(context).pop();
                                                               alertBox(
                                                                 Column(
@@ -427,7 +335,7 @@ class _LoginState extends State<Login> {
                                                                       height:mqh*0.035,
                                                                     ),
                                                                     Text(
-                                                                      "${(role==1)?"Doctor":"Admin"} Login\n$email",
+                                                                      "Patient Login\n$email",
                                                                       textAlign: TextAlign.center,
                                                                       style:TextStyle(
                                                                         fontSize: mqh*0.02,
@@ -444,200 +352,353 @@ class _LoginState extends State<Login> {
                                                                   context, PageTransition(
                                                                     type: PageTransitionType.rightToLeft, 
                                                                     duration: const Duration(milliseconds: 400),
-                                                                    child: (role==1)?const DoctorHome():const AdminHome(),
+                                                                    child: const PatientHome(),
                                                                   )
                                                                 );
                                                               });
                                                             }
+                                                            else if(role==1 || role==2){
+                                                              if(!user.emailVerified){
+                                                                Navigator.of(context).pop();
+                                                                alertBox(
+                                                                  Column(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons.error, 
+                                                                        color: Colors.green.shade500,
+                                                                        size: mqh*0.04
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height:mqh*0.035,
+                                                                      ),
+                                                                      Text(
+                                                                        "You're trying to login as ${(role==1)?"Doctor":"Admin"} with an unverified account.\n"
+                                                                        "Please verify first with the link sent to your email.",
+                                                                        textAlign: TextAlign.center,
+                                                                        style:TextStyle(
+                                                                          fontSize: mqh*0.02,
+                                                                          color: Colors.black,
+                                                                        ),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height:mqh*0.015,
+                                                                      ),
+                                                                      Container(
+                                                                        padding: EdgeInsets.all(mqw*0.02),
+                                                                        decoration: BoxDecoration(
+                                                                          color: Colors.green[800],
+                                                                          borderRadius: BorderRadius.all(Radius.circular(mqh*0.01))
+                                                                        ),
+                                                                        child: GestureDetector(
+                                                                          onTap: () async {
+                                                                            await user.sendEmailVerification();
+                                                                            FirebaseAuth.instance.signOut();
+                                                                            Navigator.of(context).pop();
+                                                                            setState(() {
+                                                                              _check = false;
+                                                                            });
+                                                                          },
+                                                                          child: Text(
+                                                                            "Okay!",
+                                                                            textAlign: TextAlign.center,
+                                                                            style:TextStyle(
+                                                                              fontSize: mqh*0.02,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+                                                              else{
+                                                                Navigator.of(context).pop();
+                                                                alertBox(
+                                                                  Column(
+                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons.done, 
+                                                                        color: Colors.green.shade500,
+                                                                        size: mqh*0.04
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height:mqh*0.035,
+                                                                      ),
+                                                                      Text(
+                                                                        "${(role==1)?"Doctor":"Admin"} Login\n$email",
+                                                                        textAlign: TextAlign.center,
+                                                                        style:TextStyle(
+                                                                          fontSize: mqh*0.02,
+                                                                          color: Colors.black,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                                SharedPreferences sp = await SharedPreferences.getInstance();
+                                                                sp.setString('email', email);
+                                                                Future.delayed(const Duration(seconds: 2), () {
+                                                                  Navigator.push(
+                                                                    context, PageTransition(
+                                                                      type: PageTransitionType.rightToLeft, 
+                                                                      duration: const Duration(milliseconds: 400),
+                                                                      child: (role==1)?const DoctorHome():const AdminHome(),
+                                                                    )
+                                                                  );
+                                                                });
+                                                              }
+                                                            }
                                                           }
+                                                          else{
+                                                            setState((){
+                                                                role = -1;
+                                                            });
+                                                          }
+                                                        });
+                                                      }on FirebaseAuthException catch (e){
+                                                        Navigator.of(context).pop();
+                                                        setState((){
+                                                          _check = !_check;
+                                                        });
+                                                        String msg;
+                                                        if(e.code == 'user-not-found'){
+                                                          msg = 'No Such User found!';
+                                                        }else if(e.code == 'wrong-password'){
+                                                          msg = 'Incorrect Password !';
+                                                        }else{
+                                                          msg = 'Something went wrong!';
                                                         }
-                                                        else{
-                                                          setState((){
-                                                              role = -1;
-                                                          });
-                                                        }
-                                                      });
-                                                    }on FirebaseAuthException catch (e){
-                                                      Navigator.of(context).pop();
+                                                        ScaffoldMessenger.of(context).showSnackBar(snackBar(msg));
+                                                        
+                                                      }
                                                       setState((){
                                                         _check = !_check;
                                                       });
-                                                      String msg;
-                                                      if(e.code == 'user-not-found'){
-                                                        msg = 'No Such User found!';
-                                                      }else if(e.code == 'wrong-password'){
-                                                        msg = 'Incorrect Password !';
-                                                      }else{
-                                                        msg = 'Something went wrong!';
-                                                      }
-                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar(msg));
-                                                      
                                                     }
-                                                    setState((){
-                                                      _check = !_check;
-                                                    });
+                                                    
                                                   }
                                                   
-                                                }
-                                                
-                                              },
-                                              child: AnimatedContainer(
-                                                duration: const Duration(seconds: 1),
-                                                width: _check?mqw*0.125: mqw*0.3,
-                                                height: mqw*0.125,
-                                                alignment: Alignment.center,
-                                                child: _check?
-                                                const Icon(
-                                                  Icons.done, color: Colors.white,
-                                                ) :
-                                                Text(
-                                                  "Sign In",
-                                                  style: TextStyle(
-                                                    color: Colors.white, 
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: mqh*0.025,
+                                                },
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(seconds: 1),
+                                                  width: _check?mqw*0.125: mqw*0.3,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: _check?
+                                                  const Icon(
+                                                    Icons.done, color: Colors.white,
+                                                  ) :
+                                                  Text(
+                                                    "Sign In",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.02
-                                        ),
-                                        Container(
-                                          alignment: Alignment.centerRight,
-                                          child: TextButton(
-                                            onPressed:(){
-                                              setState((){
-                                                _check = !_check;
-                                              });
-                                              showDialog(
-                                                context: context,
-                                                builder:  (BuildContext context)
-                                                {
-                                                  return AlertDialog(
-                                                    title: const Text(
-                                                      'Reset Password',
-                                                      textAlign: TextAlign.center,
-                                                    ),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(mqh*0.025),
-                                                    ), 
-                                                    backgroundColor: Colors.green[100],
-                                                    content: SingleChildScrollView(
-                                                      child: ListBody(
-                                                        children: <Widget>[
-                                                          const Text(
-                                                            'Enter username to reset password:',
-                                                            textAlign: TextAlign.left,
-                                                          ),
-                                                          SizedBox(
-                                                            height:mqh*0.02
-                                                          ),
-                                                          Form(
-                                                            key: formKeyReset,
-                                                            child: TextFormField(
-                                                              inputFormatters: <TextInputFormatter>[
-                                                                FilteringTextInputFormatter.allow(RegExp("[a-z0-9.-]")),
-                                                              ],
-                                                              decoration: const InputDecoration(
-                                                                hintText: "Username",
-                                                              ),
-                                                              validator: (value){
-                                                                if(value!.isEmpty){
-                                                                  return "Username can't be Empty!";
-                                                                }
-                                                                return null;
-                                                              },
-                                                              onChanged: (value){
-                                                                value = value.replaceAll(' ', '');
-                                                                emailReset = value + "@lnmiit.ac.in";
-                                                                setState(() {
-                                                                  
-                                                                });
-                                                              },
+                                          SizedBox(
+                                            height:mqh*0.02
+                                          ),
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: TextButton(
+                                              onPressed:(){
+                                                showDialog(
+                                                  context: context,
+                                                  builder:  (BuildContext context)
+                                                  {
+                                                    return AlertDialog(
+                                                      insetPadding: EdgeInsets.only(left:mqw*0.15),
+                                                      title: const Text(
+                                                        'Reset Password',
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(mqh*0.025),
+                                                      ), 
+                                                      backgroundColor: Colors.green[100],
+                                                      content: SingleChildScrollView(
+                                                        child: ListBody(
+                                                          children: <Widget>[
+                                                            const Text(
+                                                              'Enter username to reset password:',
+                                                              textAlign: TextAlign.left,
                                                             ),
+                                                            SizedBox(
+                                                              height:mqh*0.02
+                                                            ),
+                                                            Form(
+                                                              key: formKeyReset,
+                                                              child: TextFormField(
+                                                                inputFormatters: <TextInputFormatter>[
+                                                                  FilteringTextInputFormatter.allow(RegExp("[a-z0-9.-]")),
+                                                                ],
+                                                                decoration: const InputDecoration(
+                                                                  hintText: "Username",
+                                                                ),
+                                                                validator: (value){
+                                                                  if(value!.isEmpty){
+                                                                    return "Username can't be Empty!";
+                                                                  }
+                                                                  return null;
+                                                                },
+                                                                onChanged: (value){
+                                                                  value = value.replaceAll(' ', '');
+                                                                  emailReset = value + "@lnmiit.ac.in";
+                                                                  setState(() {
+                                                                    
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          child: const Text(
+                                                            'Send Reset Password Link', 
+                                                            style: TextStyle(color:Colors.black)
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        child: const Text(
-                                                          'Send Reset Password Link', 
-                                                          style: TextStyle(color:Colors.black)
+                                                          onPressed: () {
+                                                            if(emailReset!=""){
+                                                              setState(() {
+                                                                Navigator.of(context).pop();
+                                                              });
+                                                              FirebaseAuth.instance.sendPasswordResetEmail(email: emailReset);
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context){
+                                                                  return AlertDialog(
+                                                                    insetPadding: EdgeInsets.only(left:mqw*0.2, right:mqw*0.05),
+                                                                    title: const Text(
+                                                                      'Email Sent',
+                                                                      textAlign: TextAlign.center,
+                                                                    ),
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius: BorderRadius.circular(mqh*0.025),
+                                                                    ), 
+                                                                    backgroundColor: Colors.green[100],
+                                                                    content: SingleChildScrollView(
+                                                                      child: Column(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height:mqw*0.05,
+                                                                            width:mqw*0.05,
+                                                                            child: Icon(
+                                                                              Icons.done, 
+                                                                              color: Colors.green.shade500
+                                                                            )
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height:mqw*0.05,
+                                                                          ),
+                                                                          Text(
+                                                                            "If email matches an exisiting account, a password reset link has been sent to email.",
+                                                                            textAlign: TextAlign.center,
+                                                                            style:TextStyle(
+                                                                              fontSize: mqh*0.02,
+                                                                              color: Colors.black,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    actions: <Widget>[
+                                                                      TextButton(
+                                                                        child: const Text(
+                                                                          'Okay', 
+                                                                          style: TextStyle(color:Colors.black)
+                                                                        ),
+                                                                        onPressed: () {
+                                                                          Navigator.of(context).pop();
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                }
+                                                              );
+                                                            }
+                                                          },
                                                         ),
-                                                        onPressed: () {
-                                                          
-                                                        },
-                                                      ),
-                                                      TextButton(
-                                                          child: const Text('Cancel', 
-                                                          style: TextStyle(color:Colors.black)
+                                                        TextButton(
+                                                            child: const Text('Cancel', 
+                                                            style: TextStyle(color:Colors.black)
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(context).pop();
+                                                          },
                                                         ),
-                                                        onPressed: () {
-                                                          Navigator.of(context).pop();
-                                                        },
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child:Text(
-                                            "Forgot Password ?",
-                                              style:TextStyle(
-                                                fontSize: mqh*0.023,
-                                                color: Colors.black87,
-                                              ),
-                                            )
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.04
-                                        ),
-                                        Container(
-                                          alignment: Alignment.centerRight,
-                                          child: const Text(
-                                            "Don't have an account ?",
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height:mqh*0.01
-                                        ),
-                                        Container(
-                                          alignment: Alignment.centerRight,
-                                          child: Material(
-                                            color: Colors.green,
-                                            borderRadius: BorderRadius.circular(mqw*0.03),
-                                            child: InkWell(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context, PageTransition(
-                                                    type: PageTransitionType.bottomToTop, 
-                                                    duration: const Duration(milliseconds: 400),
-                                                    child: const Register()
-                                                  )
+                                                      ],
+                                                    );
+                                                  },
                                                 );
                                               },
-                                              child: Container(
-                                                width: mqw*0.39,
-                                                height: mqw*0.125,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "Sign Up Now",
-                                                  style: TextStyle(
-                                                    color: Colors.white, 
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: mqh*0.025,
+                                              child:Text(
+                                              "Forgot Password ?",
+                                                style:TextStyle(
+                                                  fontSize: mqh*0.023,
+                                                  color: Colors.black87,
+                                                ),
+                                              )
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.04
+                                          ),
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: const Text(
+                                              "Don't have an account ?",
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:mqh*0.01
+                                          ),
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Material(
+                                              color: Colors.green,
+                                              borderRadius: BorderRadius.circular(mqw*0.03),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context, PageTransition(
+                                                      type: PageTransitionType.bottomToTop, 
+                                                      duration: const Duration(milliseconds: 400),
+                                                      child: const Register()
+                                                    )
+                                                  );
+                                                },
+                                                child: Container(
+                                                  width: mqw*0.39,
+                                                  height: mqw*0.125,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Sign Up Now",
+                                                    style: TextStyle(
+                                                      color: Colors.white, 
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: mqh*0.025,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(
+                                            height:mqh*0.02
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   )
                                 ),
