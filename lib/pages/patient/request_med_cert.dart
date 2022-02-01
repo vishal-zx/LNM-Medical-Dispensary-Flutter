@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
@@ -12,27 +14,60 @@ class RequestMedCert extends StatefulWidget {
 
 class _RequestMedCertState extends State<RequestMedCert> {
   final formKey = GlobalKey<FormState>();
-
   bool _check1 = false; 
+  List<DropdownMenuItem<String>> dropDownDocs = [];
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  bool loaded = false;
 
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("USA"), value: "USA"),
-      const DropdownMenuItem(child: Text("Canada"), value: "Canada"),
-      const DropdownMenuItem(child: Text("Brazil"), value: "Brazil"),
-      const DropdownMenuItem(child: Text("England"), value: "England"),
-    ];
-    return menuItems;
+  SnackBar snackBar(String text){
+    var mqh = MediaQuery.of(context).size.height;
+    var mqw = MediaQuery.of(context).size.width;
+    return SnackBar(
+      duration: const Duration(milliseconds:3500),
+      content: Text(
+        text, 
+        textAlign: TextAlign.center, 
+        style: TextStyle(
+          fontSize: mqh*0.0225,
+          fontFamily: 'Avenir',
+          color: Colors.white
+        ),
+      ),
+      backgroundColor: Colors.black,
+      elevation: 5,
+      width: mqw*0.8,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.all(mqw*0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(mqw*0.04))
+      ),
+    );
+  }
+
+  Future<void> getDoctors() async{
+    QuerySnapshot qs = await FirebaseFirestore.instance.collection('doctor').orderBy('FirstName').get();
+    var doctors = qs.docs;
+    for(var doc in doctors){
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if(data.containsKey('Username')){
+        dropDownDocs.add(DropdownMenuItem(
+          child: Text("Dr. ${data['FirstName']} ${data['LastName']}"),
+          value: data['Username'],
+        ));
+      }
+    }
   }
   
-  String selectedValue = "USA";
+  String selectedDoc = "";
   String reason = "";
-  // DateTime selectedFromDate = DateTime.now().add(const Duration(days: 2));
   DateTime selectedFromDate = DateTime.now();
   DateTime selectedToDate = DateTime.now().add(const Duration(days: 2));
 
   @override
   void initState(){
+    if(dropDownDocs.isEmpty){
+      getDoctors().whenComplete(() => setState((){loaded = true;}));
+    }
     super.initState();
   }
 
@@ -88,7 +123,33 @@ class _RequestMedCertState extends State<RequestMedCert> {
                             height: mqh*0.755,
                             child: Form(
                               key: formKey,
-                              child: SingleChildScrollView(
+                              child: (!loaded)?Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height:mqw*0.1,
+                                      width:mqw*0.1,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.amber.shade800,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:mqh*0.035,
+                                    ),
+                                    Text(
+                                      "Loading Data ...",
+                                      textAlign: TextAlign.center,
+                                      style:TextStyle(
+                                        fontSize: mqh*0.02,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ):
+                              SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -102,13 +163,13 @@ class _RequestMedCertState extends State<RequestMedCert> {
                                       )
                                     ),
                                     SearchChoices.single(
-                                      items: dropdownItems,
-                                      value: selectedValue,
+                                      items: dropDownDocs,
+                                      value: selectedDoc,
                                       hint: "Select one",
                                       searchHint: null,
                                       onChanged: (value) {
                                         setState(() {
-                                          selectedValue = value;
+                                          selectedDoc = value;
                                         });
                                       },
                                       style:TextStyle(
@@ -121,173 +182,200 @@ class _RequestMedCertState extends State<RequestMedCert> {
                                       isExpanded: true,
                                     ),
                                     SizedBox(
-                                      height:mqh*0.04
+                                      height:mqh*0.02
                                     ),
-                                    Text(
-                                      "Date",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.035,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    Text(
-                                      "(You can only select a period of maximum 14 days.)",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.015,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.01
-                                    ),
-                                    Text(
-                                      "From",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.02,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    TextFormField(
-                                      decoration: InputDecoration(
-                                        hintText: DateFormat("dd MMMM yyyy").format(DateTime.now()),
-                                        suffix: InkWell(
-                                          onTap: () {
-                                            showDatePicker(
-                                              context: context,
-                                              builder: (context, child) {
-                                                return Theme(
-                                                  data: Theme.of(context).copyWith(
-                                                    colorScheme: ColorScheme.light(
-                                                      primary: Colors.amber.shade300,
-                                                      onPrimary: Colors.black,
-                                                      onSurface: Colors.black,
-                                                    ),
-                                                  ),
-                                                  child: child!,
-                                                );
-                                              },
-                                              helpText: 'Select From Date for Certificate',
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime.now().subtract(const Duration(days: 30)),
-                                              lastDate: DateTime.now(),
-                                            ).then((pickedDate) {
-                                              if (pickedDate == null) {
-                                                return;
-                                              }
-                                              setState(() {
-                                                selectedFromDate = pickedDate;
-                                                if((selectedToDate.difference(selectedFromDate)).inDays > 14){
-                                                  selectedToDate = selectedFromDate.add(const Duration(days:14));
-                                                }
-                                                if((selectedFromDate.difference(selectedToDate)).inDays>0){
-                                                  selectedToDate = selectedFromDate.add(const Duration(days:2));
-                                                }
-                                              });
-                                            });
-                                          },
-                                          child: Icon(
-                                            Icons.date_range,
-                                            size: mqh*0.033,
-                                          ),
+                                    if(selectedDoc!="")
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Date",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.035,
+                                            color: Colors.black87,
+                                          )
                                         ),
-                                      ),
-                                      readOnly: true,
-                                      style:TextStyle(
-                                        fontSize: mqh*0.023,
-                                        color: Colors.black,
-                                      ),
-                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedFromDate),
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.025
-                                    ),
-                                    Text(
-                                      "To",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.02,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    TextFormField(
-                                      decoration: InputDecoration(
-                                        hintText: DateFormat("dd MMMM yyyy").format(selectedFromDate),
-                                        suffix: InkWell(
-                                          onTap: () {
-                                            showDatePicker(
-                                              context: context,
-                                              builder: (context, child) {
-                                                return Theme(
-                                                  data: Theme.of(context).copyWith(
-                                                    colorScheme: ColorScheme.light(
-                                                      primary: Colors.amber.shade300,
-                                                      onPrimary: Colors.black,
-                                                      onSurface: Colors.black,
-                                                    ),
-                                                  ),
-                                                  child: child!,
-                                                );
-                                              },
-                                              helpText: 'Select To Date for Certificate',
-                                              initialDate: selectedToDate,
-                                              firstDate: selectedFromDate,
-                                              lastDate: selectedFromDate.add(const Duration(days: 14)),
-                                            ).then((pickedDate) {
-                                              if (pickedDate == null) {
-                                                return;
-                                              }
-                                              setState(() {
-                                                selectedToDate = pickedDate;
-                                              });
-                                            });
-                                          },
-                                          child: Icon(
-                                            Icons.date_range,
-                                            size: mqh*0.033,
-                                          ),
+                                        Text(
+                                          "(You can only select a period of maximum 14 days & not older than a month.)",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.015,
+                                            color: Colors.black87,
+                                          )
                                         ),
-                                      ),
-                                      readOnly: true,
-                                      style:TextStyle(
-                                        fontSize: mqh*0.023,
-                                        color: Colors.black,
-                                      ),
-                                      controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedToDate),
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.04
-                                    ),
-                                    Text(
-                                      "Reason",
-                                      style:TextStyle(
-                                        fontSize: mqh*0.035,
-                                        color: Colors.black87,
-                                      )
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.01
-                                    ),
-                                    TextFormField(
-                                      decoration: const InputDecoration(
-                                        hintText: "Enter reason for medical certificate",
-                                      ),
-                                      maxLength: 100,
-                                      onChanged:(value){
-                                        reason = value;
-                                      },
-                                    ),
-                                    SizedBox(
-                                      height:mqh*0.05
+                                        SizedBox(
+                                          height:mqh*0.01
+                                        ),
+                                        Text(
+                                          "From",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.02,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                            hintText: DateFormat("dd MMMM yyyy").format(DateTime.now()),
+                                            suffix: InkWell(
+                                              onTap: () {
+                                                showDatePicker(
+                                                  context: context,
+                                                  builder: (context, child) {
+                                                    return Theme(
+                                                      data: Theme.of(context).copyWith(
+                                                        colorScheme: ColorScheme.light(
+                                                          primary: Colors.amber.shade300,
+                                                          onPrimary: Colors.black,
+                                                          onSurface: Colors.black,
+                                                        ),
+                                                      ),
+                                                      child: child!,
+                                                    );
+                                                  },
+                                                  helpText: 'Select From Date for Certificate',
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                                                  lastDate: DateTime.now(),
+                                                ).then((pickedDate) {
+                                                  if (pickedDate == null) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    selectedFromDate = pickedDate;
+                                                    if((selectedToDate.difference(selectedFromDate)).inDays > 14){
+                                                      selectedToDate = selectedFromDate.add(const Duration(days:14));
+                                                    }
+                                                    if((selectedFromDate.difference(selectedToDate)).inDays>0){
+                                                      selectedToDate = selectedFromDate.add(const Duration(days:2));
+                                                    }
+                                                  });
+                                                });
+                                              },
+                                              child: Icon(
+                                                Icons.date_range,
+                                                size: mqh*0.033,
+                                              ),
+                                            ),
+                                          ),
+                                          readOnly: true,
+                                          style:TextStyle(
+                                            fontSize: mqh*0.023,
+                                            color: Colors.black,
+                                          ),
+                                          controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedFromDate),
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.025
+                                        ),
+                                        Text(
+                                          "To",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.02,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                            hintText: DateFormat("dd MMMM yyyy").format(selectedFromDate),
+                                            suffix: InkWell(
+                                              onTap: () {
+                                                showDatePicker(
+                                                  context: context,
+                                                  builder: (context, child) {
+                                                    return Theme(
+                                                      data: Theme.of(context).copyWith(
+                                                        colorScheme: ColorScheme.light(
+                                                          primary: Colors.amber.shade300,
+                                                          onPrimary: Colors.black,
+                                                          onSurface: Colors.black,
+                                                        ),
+                                                      ),
+                                                      child: child!,
+                                                    );
+                                                  },
+                                                  helpText: 'Select To Date for Certificate',
+                                                  initialDate: selectedToDate,
+                                                  firstDate: selectedFromDate,
+                                                  lastDate: selectedFromDate.add(const Duration(days: 14)),
+                                                ).then((pickedDate) {
+                                                  if (pickedDate == null) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    selectedToDate = pickedDate;
+                                                  });
+                                                });
+                                              },
+                                              child: Icon(
+                                                Icons.date_range,
+                                                size: mqh*0.033,
+                                              ),
+                                            ),
+                                          ),
+                                          readOnly: true,
+                                          style:TextStyle(
+                                            fontSize: mqh*0.023,
+                                            color: Colors.black,
+                                          ),
+                                          controller: TextEditingController()..text = DateFormat("dd MMMM yyyy").format(selectedToDate),
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.04
+                                        ),
+                                        Text(
+                                          "Reason",
+                                          style:TextStyle(
+                                            fontSize: mqh*0.035,
+                                            color: Colors.black87,
+                                          )
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.01
+                                        ),
+                                        TextFormField(
+                                          decoration: const InputDecoration(
+                                            hintText: "Enter reason for medical certificate",
+                                          ),
+                                          maxLength: 100,
+                                          onChanged:(value){
+                                            reason = value;
+                                          },
+                                        ),
+                                        SizedBox(
+                                          height:mqh*0.025
+                                        ),
+                                      ],
                                     ),
                                     Container(
                                       alignment: Alignment.center,
                                       child: Material(
-                                        color: (_check1 == true)?Colors.orange[300]:Colors.orange,
+                                        color: (selectedDoc=="")?Colors.grey:(_check1 == true)?Colors.orange[300]:Colors.orange,
                                         borderRadius: BorderRadius.circular(_check1?mqw*0.1:mqw*0.03),
                                         child: InkWell(
-                                          onTap: () {
-                                            setState((){
-                                              _check1 = !_check1;
-                                            });
+                                          onTap: () async {
+                                            if(selectedDoc!=""){
+                                              if(reason!=""){
+                                                setState((){
+                                                  _check1 = !_check1;
+                                                });
+                                                await FirebaseFirestore.instance.collection('medicalCertificate').doc(username)
+                                                .collection(selectedDoc).doc().set({
+                                                  'Reason': reason,
+                                                  'dateFrom': DateFormat('dd-MM-yyyy').format(selectedFromDate),
+                                                  'dateTo': DateFormat('dd-MM-yyyy').format(selectedToDate),
+                                                  'isApproved': 2
+                                                }).whenComplete(() async{
+                                                  await FirebaseFirestore.instance.collection('medicalCertificate').doc(username).update({ 
+                                                    'docs': FieldValue.arrayUnion([selectedDoc]),
+                                                  }).whenComplete(() {
+                                                    Navigator.of(context).pop();
+                                                    ScaffoldMessenger.of(context).showSnackBar(snackBar('Request for Medical Certificate added successfully!'));
+                                                  });
+                                                });
+                                              }
+                                              else{
+                                                ScaffoldMessenger.of(context).showSnackBar(snackBar('Please enter a reason!'));
+                                              }
+                                            }
                                           },
                                           child: AnimatedContainer(
                                             duration: const Duration(seconds: 1),
