@@ -5,7 +5,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:search_choices/search_choices.dart';
 import '../../apis/medrecord_pdf_api.dart';
 import '../../apis/pdf_api.dart';
-import '../../models/med_record.dart';
+import '../../models/model.dart';
 
 class PMedRec extends StatelessWidget {
   const PMedRec({ Key? key, required this.patHis, required this.patDetails}) : super(key: key);

@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:lnm_medical_dispensary/apis/pdf_api.dart';
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
 import '../models/model.dart';
 import '../pages/doctor/view_pat_history.dart';
-class PdfMedRecordApi {
-  static Future<File> generate(MedRec medRec) async {
+import '../pages/patient/view_med_cert_reqs.dart';
+import 'package:remove_emoji/remove_emoji.dart';
+var remove = RemoveEmoji();
+class PdfMedCertApi {
+  static Future<File> generate(MedCert mc) async {
     final pdf = Document();
     pdf.addPage(MultiPage(
       build: (context) => [
@@ -14,10 +16,10 @@ class PdfMedRecordApi {
           children: [
             header(),
             title(),
-            patBody(medRec.patDetails),
-            prescBody(medRec.patHis),
+            patBody(mc.patDetails),
+            certificate(mc.medCert),
             
-            pw.Container(
+            Container(
               height: 130,
               child: footer(),
             )
@@ -27,7 +29,7 @@ class PdfMedRecordApi {
       ],
     ));
 
-    return PdfApi.saveDocument(name: 'Medical Record - ${medRec.patHis.patient}.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: 'Medical Certificate - ${mc.patDetails.name}.pdf', pdf: pdf);
   }
 
   static Widget header() => Container(
@@ -55,7 +57,7 @@ class PdfMedRecordApi {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 10),
-        pw.Container(
+        Container(
           width: double.maxFinite,
           height: 1, 
           color: PdfColors.black,
@@ -72,7 +74,7 @@ class PdfMedRecordApi {
       children:[
         SizedBox(height: 10),
         Text(
-          "Medical Record",
+          "Medical Certificate",
           style: TextStyle(
             color: PdfColors.black,
             fontSize: 25,
@@ -209,13 +211,13 @@ class PdfMedRecordApi {
           ]
         ),
         SizedBox(height: 10),
-        pw.Divider(),
+        Divider(),
         SizedBox(height: 10),
       ]
     )
   );
 
-  static Widget prescBody(PatHistory ph) => Container(
+  static Widget certificate(MedCertRequests mc) => Container(
     height: 330,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -233,7 +235,7 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              "Dr. "+ph.doctor,
+              "Dr. "+mc.doctor,
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -247,7 +249,7 @@ class PdfMedRecordApi {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Reason (by Patient):",
+              "Reason for Certificate:",
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -256,7 +258,7 @@ class PdfMedRecordApi {
             ), 
             SizedBox(width: 10),
             Text(
-              ph.reason,
+              mc.reason.substring(0, (mc.reason.length>35)?35:mc.reason.length).removemoji,
               style: TextStyle(
                 color: PdfColors.black,
                 fontSize: 20,
@@ -264,6 +266,18 @@ class PdfMedRecordApi {
               )
             ), 
           ]
+        ),
+        if(mc.reason.length>35)
+        Container(
+          child:
+            Text(
+              '-'+mc.reason.substring(35).removemoji,
+              style: TextStyle(
+                color: PdfColors.black,
+                fontSize: 20,
+                font: Font.times(),
+              ),
+            ), 
         ),
         SizedBox(height: 10),
         Row(
@@ -272,7 +286,7 @@ class PdfMedRecordApi {
             Row(
               children: [
                 Text(
-                  "Appointment Date:",
+                  "Certificate Issued From:",
                   style: TextStyle(
                     color: PdfColors.black,
                     fontSize: 20,
@@ -281,19 +295,16 @@ class PdfMedRecordApi {
                 ), 
                 SizedBox(width: 10),
                 Text(
-                  ph.dateTime.substring(0,10),
+                  mc.fromDate,
                   style: TextStyle(
                     color: PdfColors.black,
                     fontSize: 20,
                     font: Font.times(),
                   )
                 ), 
-              ]
-            ),
-            Row(
-              children: [
+                SizedBox(width: 10),
                 Text(
-                  "Time:",
+                  "To:",
                   style: TextStyle(
                     color: PdfColors.black,
                     fontSize: 20,
@@ -302,7 +313,7 @@ class PdfMedRecordApi {
                 ), 
                 SizedBox(width: 10),
                 Text(
-                  ph.dateTime.substring(11),
+                  mc.toDate,
                   style: TextStyle(
                     color: PdfColors.black,
                     fontSize: 20,
@@ -313,108 +324,18 @@ class PdfMedRecordApi {
             ),
           ]
         ),
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Text(
-              "Prescription:",
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.timesBold(),
-              )
-            ), 
-            SizedBox(width: 10),
-            Text(
-              ph.prescription.substring(0, (ph.prescription.length>42)?42:ph.prescription.length),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              ),
-            ), 
-          ]
-        ),
-        if(ph.prescription.length>42)
-        Container(
-          child:
-            Text(
-              '-'+ph.prescription.substring(42),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              ),
-            ), 
-        ),
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Text(
-              "Other Instructions:",
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.timesBold(),
-              )
-            ), 
-            SizedBox(width: 10),
-            Text(
-              ph.instruction.substring(0, (ph.instruction.length>38)?38:ph.instruction.length),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              )
-            ), 
-          ]
-        ),
-        if(ph.instruction.length>38)
-        Container(
-          child:
-            Text(
-              '-'+ph.instruction.substring(38),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              ),
-            ), 
-        ),
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Text(
-              "Refer to (if any):",
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.timesBold(),
-              )
-            ), 
-            SizedBox(width: 10),
-            Text(
-              ph.refer.substring(0, (ph.refer.length>38)?38:ph.refer.length),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              )
-            ), 
-          ]
-        ),
-        if(ph.refer.length>38)
-        Container(
-          child:
-            Text(
-              '-'+ph.refer.substring(38),
-              style: TextStyle(
-                color: PdfColors.black,
-                fontSize: 20,
-                font: Font.times(),
-              ),
-            ), 
-        ),
+        SizedBox(height: 30),
+        Center(
+          child: Text(
+            "APPROVED",
+            style: TextStyle(
+              color: PdfColors.black,
+              fontSize: 26,
+              font: Font.timesBold(),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        )
       ]
     )
   );
@@ -426,8 +347,29 @@ class PdfMedRecordApi {
       crossAxisAlignment: CrossAxisAlignment.center,
       children:[
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            Column(
+              children: [
+                Text(
+                  "-----------------------",
+                  style: TextStyle(
+                    color: PdfColors.black,
+                    fontSize: 20,
+                    font: Font.timesBold(),
+                  )
+                ), 
+                SizedBox(width: 10),
+                Text(
+                  "Medical Unit Seal",
+                  style: TextStyle(
+                    color: PdfColors.black,
+                    fontSize: 20,
+                    font: Font.times(),
+                  )
+                ), 
+              ]
+            ),
             Column(
               children: [
                 Text(
@@ -452,7 +394,7 @@ class PdfMedRecordApi {
           ]
         ),
         SizedBox(height: 10),
-        pw.Divider(),
+        Divider(),
         SizedBox(height: 5),
         Text(
           "Medical Unit - LNMIIT, Jaipur",

@@ -28,6 +28,7 @@ dependencies:
   open_file: ^3.2.1
   path_provider: ^2.0.8
   pdf: ^3.7.0
+  remove_emoji: ^0.0.6
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,12 @@
 import 'dart:core';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-
+import '../../apis/medcert_pdf_api.dart';
+import '../../apis/pdf_api.dart';
+import '../../models/model.dart';
+import '../doctor/view_pat_history.dart';
 
 class ViewMedCertReqs extends StatefulWidget {
   const ViewMedCertReqs({ Key? key }) : super(key: key);
@@ -12,66 +15,61 @@ class ViewMedCertReqs extends StatefulWidget {
   _ViewMedCertReqsState createState() => _ViewMedCertReqsState();
 }
 
-enum CertStatus {
-  none,
-  approved,
-  pending,
-  rejected,
-}
-
 class MedCertRequests{
   String doctor = "";
-  DateTime fromDate = DateTime.now();
-  DateTime toDate = DateTime.now();
-  CertStatus status = CertStatus.none;
+  String fromDate = "";
+  String toDate = "";
+  int status = 2;
   String reason = "";
-  String certUrl = "";
 
-  MedCertRequests(this.doctor, this.fromDate, this.toDate, this.status, this.reason, this.certUrl);
+  MedCertRequests(this.doctor, this.fromDate, this.toDate, this.status, this.reason);
 }
 
 class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
   final formKey = GlobalKey<FormState>();
+  List<MedCertRequests> medCertsReqs = [];
+  bool load = false;
+  String username = FirebaseAuth.instance.currentUser!.email!.replaceAll('@lnmiit.ac.in', '');
+  late PatDetails pd;
 
-  List<MedCertRequests> medCertsReqs = [
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever fever fever fever fever fever in order to open APK files, your application needs', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever in order to open APK files, your application needs', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.pending, 'fever', ''),
-      MedCertRequests('Vishal Gupta', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Chand Singh', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.rejected, 'fever', ''),
-      MedCertRequests('Amit Malhotra', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-      MedCertRequests('Nidhi Bisht', DateTime.now(), DateTime.now().add(const Duration(days:2)), CertStatus.approved, 'fever', ''),
-  ];
+  Future<void> getMedCerts()async{
+    QuerySnapshot qsP = await FirebaseFirestore.instance.collection('patient').where('Username', isEqualTo: username).get();
+    String pName = qsP.docs[0]['FirstName']!+" "+qsP.docs[0]['LastName']!;
+    pd = PatDetails(pName, qsP.docs[0]['Email'], qsP.docs[0]['Age'], qsP.docs[0]['Mob'], (qsP.docs[0]['isMale'])?"Male":"Female");
+    
+    DocumentSnapshot qs = await FirebaseFirestore.instance.collection('medicalCertificate').doc(username).get();
+    var app = qs.data() as Map<String, dynamic>;
+    List<dynamic> docs = app['docs']!;
+    for(var i in docs){
+      QuerySnapshot qs = await FirebaseFirestore.instance.collection('medicalCertificate').doc(username).collection(i.toString()).get();
+      var apps = qs.docs;
+      for(var ap in apps){
+        var t = ap.data() as Map<String, dynamic>;
+        QuerySnapshot qsD = await FirebaseFirestore.instance.collection('doctor').where('Username', isEqualTo:i.toString()).get();
+        String dName = qsD.docs[0]['FirstName']!+" "+qsD.docs[0]['LastName']!;
+        medCertsReqs.add(MedCertRequests(dName, t['dateFrom']!, t['dateTo']!, t['isApproved']!, t['Reason']!));
+        setState(() {});
+      }
+    }
+    setState(() {});
+  }
+
+  void buildMedCert(MedCertRequests medCert, PatDetails patDetails) async {
+    var medCertRec = MedCert(
+      medCert: medCert, 
+      patDetails: patDetails
+    );
+
+    final pdfFile = await PdfMedCertApi.generate(medCertRec);
+    PdfApi.openFile(pdfFile);
+  }
 
   @override
   void initState(){
-    // FlutterDownloader.initialize();
+    if(medCertsReqs.isEmpty){
+      getMedCerts().whenComplete(() => setState((){load = true;}));
+    }
     super.initState();
-  }
-
-  void _requestDownload(String link) async {
-    FlutterDownloader.initialize().then((value)async{
-      FlutterDownloader.enqueue(
-        url: link,
-        savedDir: '/storage/emulated/0/Download',
-        showNotification: true, // show download progress in status bar (for Android)
-        openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-     );
-    });
-    
   }
 
   @override
@@ -123,7 +121,33 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                           child: SizedBox(
                             width: mqw*0.88,
                             height: mqh*0.755,
-                            child: SingleChildScrollView(
+                            child: (!load)?Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:mqw*0.1,
+                                    width:mqw*0.1,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.amber.shade800,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height:mqh*0.035,
+                                  ),
+                                  Text(
+                                    "Loading Data ...",
+                                    textAlign: TextAlign.center,
+                                    style:TextStyle(
+                                      fontSize: mqh*0.02,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ):
+                            SingleChildScrollView(
                               child: Column(
                                 children:[
                                   Container(
@@ -214,7 +238,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                                       Row(
                                                                         children: [
                                                                           Text(
-                                                                            DateFormat("dd/MM/yy").format(medCertsReqs[index].fromDate),
+                                                                            medCertsReqs[index].fromDate.substring(0,8),
                                                                             textAlign: TextAlign.center,
                                                                             style:TextStyle(
                                                                               fontSize: mqw*0.035,
@@ -230,7 +254,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                                             )
                                                                           ),
                                                                           Text(
-                                                                            DateFormat("dd/MM/yy").format(medCertsReqs[index].toDate),
+                                                                            medCertsReqs[index].toDate.substring(0,8),
                                                                             textAlign: TextAlign.center,
                                                                             style:TextStyle(
                                                                               fontSize: mqw*0.035,
@@ -263,11 +287,11 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                         shape: RoundedRectangleBorder(
                                                           borderRadius: BorderRadius.circular(mqh*0.02),
                                                         ),
-                                                        backgroundColor: (medCertsReqs[index].status == CertStatus.approved)?Colors.green[200]:
-                                                          (medCertsReqs[index].status == CertStatus.rejected)?Colors.red[200]:Colors.orange[200],
+                                                        backgroundColor: (medCertsReqs[index].status == 0)?Colors.green[200]:
+                                                          (medCertsReqs[index].status == 0)?Colors.red[200]:Colors.orange[200],
                                                         title: Text(
-                                                          'Request : '+((medCertsReqs[index].status == CertStatus.approved)?" Approved":
-                                                          (medCertsReqs[index].status == CertStatus.rejected)?" Rejected":" Pending"),
+                                                          'Request : '+((medCertsReqs[index].status == 0)?" Approved":
+                                                          (medCertsReqs[index].status == 1)?" Rejected":" Pending"),
                                                           textAlign: TextAlign.center,
                                                           style: TextStyle(
                                                             fontSize: mqw*0.05,
@@ -276,13 +300,13 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                         ),
                                                         titlePadding: EdgeInsets.only(top: mqh*0.02),
                                                         contentPadding: EdgeInsets.zero,
-                                                        actionsPadding: (medCertsReqs[index].status == CertStatus.approved)?EdgeInsets.zero:EdgeInsets.only(bottom: mqh*0.015),
+                                                        actionsPadding: (medCertsReqs[index].status == 0)?EdgeInsets.zero:EdgeInsets.only(bottom: mqh*0.015),
                                                         actionsAlignment: MainAxisAlignment.center,
                                                         actions: <Widget>[
-                                                          if(medCertsReqs[index].status == CertStatus.approved)
+                                                          if(medCertsReqs[index].status == 0)
                                                             TextButton(
                                                             child: Text(
-                                                              "Download Medical Certificate",
+                                                              "View Medical Certificate",
                                                               style: TextStyle(
                                                                 fontSize: mqw*0.045,
                                                                 color: Colors.black,
@@ -290,11 +314,10 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                               textAlign: TextAlign.center,
                                                             ),
                                                             onPressed: () {
-                                                              _requestDownload('https://firebasestorage.googleapis.com/v0/b/lnmmeddis.appspot.com/o/Vishal%20Gupta.pdf?alt=media&token=8ad40c4d-567b-4f5b-be2c-12d73f0a31c1');
-                                                              Navigator.of(context).pop();
+                                                              buildMedCert(medCertsReqs[index], pd);
                                                             },
                                                           ),
-                                                          if(medCertsReqs[index].status == CertStatus.pending)
+                                                          if(medCertsReqs[index].status == 2)
                                                             Text(
                                                               "Your request is still pending !",
                                                               style: TextStyle(
@@ -303,7 +326,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                               ),
                                                               textAlign: TextAlign.center,
                                                             ),
-                                                          if(medCertsReqs[index].status == CertStatus.rejected)
+                                                          if(medCertsReqs[index].status == 1)
                                                             Text(
                                                               "Sorry, your request was rejected by the doctor.",
                                                               style: TextStyle(
@@ -325,15 +348,15 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius: BorderRadius.horizontal(right: Radius.circular(mqh*0.01))
                                                   ),
-                                                  color: (medCertsReqs[index].status == CertStatus.approved)?Colors.green[400]:
-                                                          (medCertsReqs[index].status == CertStatus.rejected)?Colors.red[400]:Colors.orange[400],
+                                                  color: (medCertsReqs[index].status == 0)?Colors.green[400]:
+                                                          (medCertsReqs[index].status == 1)?Colors.red[400]:Colors.orange[400],
                                                   child: Container(
                                                     alignment: Alignment.center,
                                                     child: RotatedBox(
                                                       quarterTurns: 3,
                                                       child: Text(
-                                                        (medCertsReqs[index].status == CertStatus.approved)?" Approved":
-                                                        (medCertsReqs[index].status == CertStatus.rejected)?" Rejected":" Pending",
+                                                        (medCertsReqs[index].status == 0)?" Approved":
+                                                        (medCertsReqs[index].status == 1)?" Rejected":" Pending",
                                                         textAlign: TextAlign.center,
                                                         style:TextStyle(
                                                           fontSize: mqw*0.05,

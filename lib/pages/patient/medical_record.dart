@@ -2,7 +2,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import '../../apis/medrecord_pdf_api.dart';
 import '../../apis/pdf_api.dart';
-import '../../models/med_record.dart';
+import '../../models/model.dart';
 import '../doctor/view_pat_history.dart';
 
 // ignore: must_be_immutable
