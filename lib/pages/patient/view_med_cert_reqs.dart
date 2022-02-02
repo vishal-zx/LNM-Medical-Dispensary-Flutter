@@ -288,7 +288,7 @@ class _ViewMedCertReqsState extends State<ViewMedCertReqs> {
                                                           borderRadius: BorderRadius.circular(mqh*0.02),
                                                         ),
                                                         backgroundColor: (medCertsReqs[index].status == 0)?Colors.green[200]:
-                                                          (medCertsReqs[index].status == 0)?Colors.red[200]:Colors.orange[200],
+                                                          (medCertsReqs[index].status == 1)?Colors.red[200]:Colors.orange[200],
                                                         title: Text(
                                                           'Request : '+((medCertsReqs[index].status == 0)?" Approved":
                                                           (medCertsReqs[index].status == 1)?" Rejected":" Pending"),
